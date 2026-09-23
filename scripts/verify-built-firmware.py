@@ -58,11 +58,15 @@ def main() -> int:
         require(enabled(right_config, symbol), f"right-central build missing {symbol}")
     require('CONFIG_BT_DEVICE_NAME="mona2"' in right_config,
             "right-central Bluetooth name changed")
+    require(not enabled(right_config, "CONFIG_ZMK_SETTINGS_RESET_ON_START"),
+            "right-central normal firmware would erase settings on boot")
 
     for symbol in ("CONFIG_ZMK_BLE", "CONFIG_ZMK_SPLIT"):
         require(enabled(left_config, symbol), f"left-peripheral build missing {symbol}")
     require(not enabled(left_config, "CONFIG_ZMK_SPLIT_ROLE_CENTRAL"),
             "left build unexpectedly became the split central")
+    require(not enabled(left_config, "CONFIG_ZMK_SETTINGS_RESET_ON_START"),
+            "left-peripheral normal firmware would erase settings on boot")
     require("trackball_central@0" not in left_dts,
             "left-peripheral build unexpectedly contains the right trackball sensor")
     left_listener = node_body(left_dts, "trackball_central_listener")

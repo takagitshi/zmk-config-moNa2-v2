@@ -89,6 +89,8 @@ def main() -> int:
             "generated firmware contract is not enforced in CI")
     require('archive_name: pairing-reset-use-only-when-needed' in workflow,
             "pairing reset is not published as a separate CI artifact")
+    require(re.search(r"build-pairing-reset:.*?\n\s+needs: build", workflow, re.DOTALL),
+            "pairing reset must run after the normal artifact merge")
 
     revisions = re.findall(r"revision:\s*([0-9a-f]{40})", west)
     require(len(revisions) == 4, f"expected four pinned dependencies, found {len(revisions)}")
