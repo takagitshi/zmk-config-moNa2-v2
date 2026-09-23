@@ -8,11 +8,20 @@ This branch starts from the original `bbcf723` main configuration and keeps the
 moNa2 split matrix, left encoder, battery reporting, standard ZMK Studio build,
 and `zmk-rgbled-widget` layer/battery LED behavior.
 
-The active layout is the Keymap Editor-compatible `config/mona2.keymap`.
-`boards/shields/mona2/mona2.keymap` is kept in sync as a fallback. The nine
-layers are Base, Mouse/AML, Scroll, Gesture, symbol, number, move, setting, and
-User 8. Keys without a safe physical equivalent remain transparent so they can
-be adjusted later in Keymap Editor.
+The only editable layout source is the Keymap Editor-compatible
+`config/mona2.keymap`. The shield's bundled keymap is only a fallback and is
+not compared with the editable file, so a normal Keymap Editor commit cannot
+be rejected merely because the fallback did not change. The nine layers are
+Base, Mouse/AML, Scroll, Gesture, symbol, number, move, setting, and User 8.
+Keys without a safe physical equivalent remain transparent so they can be
+adjusted later in Keymap Editor.
+
+While this hardware candidate remains a Draft PR, select branch
+`codex/zen-lism-customization` in Keymap Editor to see these nine layers. The
+repository default `main` intentionally stays at the rollback-safe seven-layer
+original until the physical pointer, reconnect, sleep/resume, Scroll, and
+Gesture checks pass. After acceptance, merging this branch makes the same
+nine-layer file the normal Keymap Editor default.
 
 Mouse/pointing behavior:
 
@@ -26,6 +35,10 @@ Mouse/pointing behavior:
 - Layer 3 recognizes four gestures through the editable I/J/L/comma bindings.
 - Pointer acceleration is implemented at the PMW3610 15 ms X/Y aggregation
   boundary. Scroll and Gesture receive raw deltas. `force-awake` remains off.
+- Current moNa2 kits include COROPIT, and the official configuration requires
+  its X/Y sensor inversion. The inversion is applied in the PMW3610 node,
+  before pointer, Scroll, and Gesture processing, and is verified from the
+  generated devicetree during builds. Final direction remains a physical gate.
 
 The PMW3610 dependency is an owned, commit-pinned fork that retains final motion
 samples and retries unsent non-blocking reports. ZMK, the RGB widget, and the
@@ -34,47 +47,15 @@ keybind input processor are also pinned to the revisions used for validation.
 The stock DYA branches are not used. Standard ZMK Studio remains enabled because
 it is independent of DYA Studio and was already present on the original main.
 
-# COROPITを使用するへ
+`scripts/verify-mona2-config.py` checks the editable source contracts. After a
+right and left build, `scripts/verify-built-firmware.py` checks the generated
+devicetree and Kconfig for the COROPIT axes, exactly nine layers, unchanged
+Bluetooth identity, and the intended right-central/left-peripheral split roles.
 
-COROPITを使用する方は以下のようにコードを編集してください。
+The normal firmware package contains only the clearly named right-central and
+left-peripheral images. Pairing-reset firmware is published separately so it
+cannot be mistaken for a normal half update. The stock Bluetooth configuration
+and device name (`mona2`) are otherwise unchanged.
 
-mona2_r.overlay
-
-修正前
-```
-  trackball_central: trackball_central@0 {
-        status = "okay";
-        compatible = "pixart,pmw3610";  //トラボセンサ用のドライバとバインド
-        reg = <0>;
-        spi-max-frequency = <2000000>;
-        irq-gpios = <&gpio0 2 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>; //P0.02を指定(MOTION)
-        cpi = <600>;
-        //swap-xy;
-        //invert-x; //COROPIT版ではコメントアウトを外す
-        //invert-y; //COROPIT版ではコメントアウトを外す
-        evt-type = <INPUT_EV_REL>;
-        x-input-code = <INPUT_REL_X>;
-        y-input-code = <INPUT_REL_Y>;
-    };
-};
-
-```
-**修正後**
-```
-  trackball_central: trackball_central@0 {
-        status = "okay";
-        compatible = "pixart,pmw3610";  //トラボセンサ用のドライバとバインド
-        reg = <0>;
-        spi-max-frequency = <2000000>;
-        irq-gpios = <&gpio0 2 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>; //P0.02を指定(MOTION)
-        cpi = <600>;
-        //swap-xy;
-        invert-x; //COROPIT版ではコメントアウトを外す
-        invert-y; //COROPIT版ではコメントアウトを外す
-        evt-type = <INPUT_EV_REL>;
-        x-input-code = <INPUT_REL_X>;
-        y-input-code = <INPUT_REL_Y>;
-    };
-};
-
-```
+For the difference between an ordinary two-file update and a full bond reset,
+see [`docs/PAIRING_RECOVERY.md`](docs/PAIRING_RECOVERY.md).
