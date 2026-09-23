@@ -35,10 +35,15 @@ Mouse/pointing behavior:
 - Layer 3 recognizes four gestures through the editable I/J/L/comma bindings.
 - Pointer acceleration is implemented at the PMW3610 15 ms X/Y aggregation
   boundary. Scroll and Gesture receive raw deltas. `force-awake` remains off.
-- Current moNa2 kits include COROPIT, and the official configuration requires
-  its X/Y sensor inversion. The inversion is applied in the PMW3610 node,
-  before pointer, Scroll, and Gesture processing, and is verified from the
-  generated devicetree during builds. Final direction remains a physical gate.
+- This physical unit must not enable the PMW3610 sensor `invert-x` or
+  `invert-y` properties. Enabling both in the rejected `d5615af` candidate
+  reversed both axes on hardware. The original listener-level direction
+  transform is retained and the absence of both sensor flags is verified from
+  the generated devicetree.
+- ZEN's smooth-scrolling mode, 300-second idle timeout, and 4096-byte input
+  thread stack are retained. ZEN-only hardware settings such as `force-awake`,
+  non-LiPo battery thresholds, and GPIO status LEDs are intentionally not
+  copied to moNa2.
 
 The PMW3610 dependency is an owned, commit-pinned fork that retains final motion
 samples and retries unsent non-blocking reports. ZMK, the RGB widget, and the
@@ -47,16 +52,21 @@ keybind input processor are also pinned to the revisions used for validation.
 The stock DYA branches are not used. Standard ZMK Studio remains enabled because
 it is independent of DYA Studio and was already present on the original main.
 
-`scripts/verify-mona2-config.py` checks the editable source contracts. After a
-right and left build, `scripts/verify-built-firmware.py` checks the generated
-devicetree and Kconfig for the COROPIT axes, exactly nine layers, unchanged
-Bluetooth identity, and the intended right-central/left-peripheral split roles.
+`scripts/verify-mona2-config.py` checks the editable source contracts without
+pinning `Mouse Layer-Tap` to one physical key. It also compares AML exclusions
+with the actual non-transparent Mouse-layer positions. After an internal right
+and left build, `scripts/verify-built-firmware.py` checks the generated
+devicetree and Kconfig for the accepted physical-unit axes, exactly nine
+layers, unchanged Bluetooth identity, and the intended split roles.
 
-The normal `firmware` package contains only the clearly named right-central and
-left-peripheral images. The same CI run publishes pairing-reset firmware as a
-separate `pairing-reset-use-only-when-needed` artifact so it cannot be mistaken
-for a normal half update. The stock Bluetooth configuration and device name
-(`mona2`) are otherwise unchanged.
+Each normal Actions run publishes one `firmware` artifact containing exactly
+one file: `mona2-right-central-coropit.uf2`. The left peripheral is still built
+inside CI as a compatibility check, but is not published because ordinary
+keymap, pointer, and central behavior updates only require the central half.
+Pairing reset is available only through an explicit manual-dispatch option and
+can no longer appear during a normal push. Automatic keymap-drawer commits are
+also disabled. The stock Bluetooth configuration and device name (`mona2`) are
+otherwise unchanged.
 
 For the difference between an ordinary two-file update and a full bond reset,
 see [`docs/PAIRING_RECOVERY.md`](docs/PAIRING_RECOVERY.md).

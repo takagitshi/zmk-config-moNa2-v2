@@ -37,8 +37,11 @@ def main() -> int:
     listener = node_body(right_dts, "trackball_central_listener")
     normalized_listener = re.sub(r"\s+", "", listener)
 
-    for prop in ("invert-x;", "invert-y;", "pointer-acceleration;", "cpi = < 0x4b0 >;"):
-        require(prop in sensor, f"generated COROPIT pointer contract missing: {prop}")
+    for prop in ("pointer-acceleration;", "cpi = < 0x4b0 >;"):
+        require(prop in sensor, f"generated pointer contract missing: {prop}")
+    for prop in ("invert-x;", "invert-y;"):
+        require(prop not in sensor,
+                f"generated physical-unit contract forbids sensor inversion: {prop}")
     require("<&zip_xy_transform0x4>" in normalized_listener,
             "generated base Y transform changed")
     require("<&zip_temp_layer0x10x2710>" in normalized_listener,
@@ -54,10 +57,15 @@ def main() -> int:
         "CONFIG_ZMK_STUDIO",
         "CONFIG_ZMK_STUDIO_TRANSPORT_BLE",
         "CONFIG_PMW3610_POINTER_ACCELERATION",
+        "CONFIG_ZMK_POINTING_SMOOTH_SCROLLING",
     ):
         require(enabled(right_config, symbol), f"right-central build missing {symbol}")
     require('CONFIG_BT_DEVICE_NAME="mona2"' in right_config,
             "right-central Bluetooth name changed")
+    require('CONFIG_INPUT_THREAD_STACK_SIZE=4096' in right_config,
+            "right-central input thread stack changed")
+    require('CONFIG_ZMK_IDLE_TIMEOUT=300000' in right_config,
+            "right-central idle timeout changed")
     require(not enabled(right_config, "CONFIG_ZMK_SETTINGS_RESET_ON_START"),
             "right-central normal firmware would erase settings on boot")
 

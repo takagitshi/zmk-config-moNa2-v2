@@ -80,7 +80,7 @@
             bindings = <
 &kp Q             &kp W             &kp E    &kp R          &kp T                         &kp Y        &kp U             &lt 3 I           &kp O      &kp P
 &kp A             &kp S             &kp D    &kp F          &kp G        &kp F13          &kp H        &kp J             &lt 2 K           &kp L      &kp MINUS
-&mt LEFT_SHIFT Z  &kp X             &kp C    &kp V          &kp B        &kp F14  &kp F15  &kp N        &kp M             &kp COMMA         &kp DOT    &mt RIGHT_SHIFT QUESTION
+&mt LEFT_SHIFT Z  &kp X             &kp C    &kp V          &kp B        &mo 4    &kp F15  &kp N        &kp M             &kp COMMA         &kp DOT    &mt RIGHT_SHIFT QUESTION
 &kp LEFT_CONTROL  &kp LEFT_COMMAND  &kp F16  &kp BACKSPACE  &lt 6 ENTER  &lt 4 LANG2      &lt 4 LANG1  &lt 5 SPACE      &kp LEFT_ALT
             >;
             sensor-bindings = <&scroll_up_down>;

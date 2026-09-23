@@ -62,12 +62,13 @@
         pointer-acceleration-idle-reset-ms = <60>;
         pointer-acceleration-scroll-layer = <2>;
         pointer-acceleration-gesture-layer = <3>;
+        // Keep sensor-axis flags disabled on this physical unit. Enabling both
+        // invert-x and invert-y at d5615af reversed both axes in hardware.
+        // Pointer, Scroll, and Gesture direction is normalized by the existing
+        // listener processors below.
         //swap-xy;
-        // Current moNa2 kits include COROPIT, whose official configuration
-        // requires both sensor-axis inversion properties. Physical direction
-        // still requires a four-direction check on this unit.
-        invert-x;
-        invert-y;
+        //invert-x;
+        //invert-y;
         evt-type = <INPUT_EV_REL>;
         x-input-code = <INPUT_REL_X>;
         y-input-code = <INPUT_REL_Y>;

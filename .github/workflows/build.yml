@@ -1,7 +1,20 @@
-on: [push, pull_request, workflow_dispatch]
+name: Build firmware
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      pairing_reset:
+        description: Build the pairing-reset image instead of normal firmware
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   source-tests:
+    if: github.event_name != 'workflow_dispatch' || !inputs.pairing_reset
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -9,6 +22,7 @@ jobs:
       - run: python3 scripts/verify-mona2-config.py
 
   generated-contracts:
+    if: github.event_name != 'workflow_dispatch' || !inputs.pairing_reset
     needs: source-tests
     runs-on: ubuntu-latest
     container:
@@ -48,13 +62,11 @@ jobs:
 
   build:
     needs: generated-contracts
+    if: github.event_name != 'workflow_dispatch' || !inputs.pairing_reset
     uses: zmkfirmware/zmk/.github/workflows/build-user-config.yml@v0.3.0
 
   build-pairing-reset:
-    # The reusable workflow merges every artifact-* item in the run and then
-    # deletes those temporary items. Run reset only after the normal firmware
-    # merge has finished so the two final archives cannot consume each other.
-    needs: build
+    if: github.event_name == 'workflow_dispatch' && inputs.pairing_reset
     uses: zmkfirmware/zmk/.github/workflows/build-user-config.yml@v0.3.0
     with:
       build_matrix_path: build-reset.yaml
