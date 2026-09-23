@@ -60,7 +60,7 @@ devicetree and Kconfig for the accepted physical-unit axes, exactly nine
 layers, unchanged Bluetooth identity, and the intended split roles.
 
 Each normal Actions run publishes one `firmware` artifact containing exactly
-one file: `mona2-right-central-coropit.uf2`. The left peripheral is still built
+one file: `mona2-right-central.uf2`. The left peripheral is still built
 inside CI as a compatibility check, but is not published because ordinary
 keymap, pointer, and central behavior updates only require the central half.
 Pairing reset is available only through an explicit manual-dispatch option and

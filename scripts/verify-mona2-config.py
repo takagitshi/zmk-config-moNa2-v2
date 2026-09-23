@@ -117,7 +117,7 @@ def main() -> int:
             "stock layer LED behavior was removed")
     require('CONFIG_ZMK_STUDIO=y' in right_conf, "standard ZMK Studio was removed")
     require('settings_reset' not in builds, "pairing reset leaked into normal firmware package")
-    require('artifact-name: mona2-right-central-coropit' in builds,
+    require('artifact-name: mona2-right-central' in builds,
             "right-central artifact is not clearly named")
     require(len(re.findall(r"^\s+artifact-name:", builds, re.MULTILINE)) == 1,
             "normal firmware package must contain exactly one image")

@@ -2,7 +2,7 @@
 
 The normal keymap, pointer, and behavior update uses only this file:
 
-- `mona2-right-central-coropit.uf2` on the right central half.
+- `mona2-right-central.uf2` on the right central half.
 
 The left peripheral is still built inside the generated-contract CI job to
 detect split compatibility regressions, but it is not published because these
