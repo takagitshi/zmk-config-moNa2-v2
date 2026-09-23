@@ -42,10 +42,18 @@ def main() -> int:
     for prop in ("invert-x;", "invert-y;"):
         require(prop not in sensor,
                 f"generated physical-unit contract forbids sensor inversion: {prop}")
-    require("<&zip_xy_transform0x4>" in normalized_listener,
-            "generated base Y transform changed")
-    require("<&zip_temp_layer0x10x2710>" in normalized_listener,
-            "generated AML layer/timeout changed")
+    require(
+        "input-processors=<&zip_xy_transform0x4>,<&gesture_processor>,"
+        "<&zip_temp_layer0x10x2710>;" in normalized_listener,
+        "generated Pointer/Gesture/AML processor order changed",
+    )
+    require(
+        "input-processors=<&zip_xy_transform0x2>,<&zip_xy_to_scroll_mapper>,"
+        "<&zip_scroll_transform0x2>,<&zip_scroll_scaler0x10xa>;" in normalized_listener,
+        "generated Scroll processor order changed",
+    )
+    require("process-next;" in normalized_listener,
+            "generated Scroll chain no longer continues to HID")
 
     layers = sorted({int(value) for value in re.findall(r"\blayer_(\d+)\s*\{", right_dts)})
     require(layers == list(range(9)), f"generated keymap is not exactly nine layers: {layers}")

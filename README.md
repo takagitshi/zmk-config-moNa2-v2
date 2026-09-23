@@ -68,5 +68,5 @@ can no longer appear during a normal push. Automatic keymap-drawer commits are
 also disabled. The stock Bluetooth configuration and device name (`mona2`) are
 otherwise unchanged.
 
-For the difference between an ordinary two-file update and a full bond reset,
+For the difference between an ordinary one-file update and a full bond reset,
 see [`docs/PAIRING_RECOVERY.md`](docs/PAIRING_RECOVERY.md).
