@@ -25,6 +25,7 @@ def main() -> int:
     west = read("config/west.yml")
     builds = read("build.yaml")
     reset_build = read("build-reset.yaml")
+    workflow = read(".github/workflows/build.yml")
 
     names = re.findall(r'display-name\s*=\s*"([^"]+)";', keymap)
     require(
@@ -84,6 +85,10 @@ def main() -> int:
             "left-peripheral artifact is not clearly named")
     require('shield: settings_reset' in reset_build,
             "separate pairing reset build is missing")
+    require('python3 scripts/verify-built-firmware.py' in workflow,
+            "generated firmware contract is not enforced in CI")
+    require('archive_name: pairing-reset-use-only-when-needed' in workflow,
+            "pairing reset is not published as a separate CI artifact")
 
     revisions = re.findall(r"revision:\s*([0-9a-f]{40})", west)
     require(len(revisions) == 4, f"expected four pinned dependencies, found {len(revisions)}")

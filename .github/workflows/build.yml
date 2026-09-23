@@ -8,6 +8,51 @@ jobs:
       - run: make test
       - run: python3 scripts/verify-mona2-config.py
 
+  generated-contracts:
+    needs: source-tests
+    runs-on: ubuntu-latest
+    container:
+      image: zmkfirmware/zmk-build-arm:stable
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare isolated west workspace
+        run: |
+          mkdir -p /tmp/mona2-contracts/config
+          cp -R config/. /tmp/mona2-contracts/config/
+          cd /tmp/mona2-contracts
+          west init -l config
+          west update --fetch-opt=--filter=tree:0
+          west zephyr-export
+      - name: Build right central
+        working-directory: /tmp/mona2-contracts
+        run: >-
+          west build -s zmk/app -d build-right -b seeeduino_xiao_ble
+          -S studio-rpc-usb-uart --
+          -DSHIELD="mona2_r rgbled_adapter"
+          -DZMK_CONFIG=/tmp/mona2-contracts/config
+          -DZMK_EXTRA_MODULES=${GITHUB_WORKSPACE}
+      - name: Build left peripheral
+        working-directory: /tmp/mona2-contracts
+        run: >-
+          west build -s zmk/app -d build-left -b seeeduino_xiao_ble --
+          -DSHIELD="mona2_l rgbled_adapter"
+          -DZMK_CONFIG=/tmp/mona2-contracts/config
+          -DZMK_EXTRA_MODULES=${GITHUB_WORKSPACE}
+      - name: Verify generated devicetree and Kconfig
+        run: >-
+          python3 scripts/verify-built-firmware.py
+          /tmp/mona2-contracts/build-right/zephyr/zephyr.dts
+          /tmp/mona2-contracts/build-right/zephyr/.config
+          /tmp/mona2-contracts/build-left/zephyr/zephyr.dts
+          /tmp/mona2-contracts/build-left/zephyr/.config
+
   build:
+    needs: generated-contracts
+    uses: zmkfirmware/zmk/.github/workflows/build-user-config.yml@v0.3.0
+
+  build-pairing-reset:
     needs: source-tests
     uses: zmkfirmware/zmk/.github/workflows/build-user-config.yml@v0.3.0
+    with:
+      build_matrix_path: build-reset.yaml
+      archive_name: pairing-reset-use-only-when-needed

@@ -52,10 +52,11 @@ right and left build, `scripts/verify-built-firmware.py` checks the generated
 devicetree and Kconfig for the COROPIT axes, exactly nine layers, unchanged
 Bluetooth identity, and the intended right-central/left-peripheral split roles.
 
-The normal firmware package contains only the clearly named right-central and
-left-peripheral images. Pairing-reset firmware is published separately so it
-cannot be mistaken for a normal half update. The stock Bluetooth configuration
-and device name (`mona2`) are otherwise unchanged.
+The normal `firmware` package contains only the clearly named right-central and
+left-peripheral images. The same CI run publishes pairing-reset firmware as a
+separate `pairing-reset-use-only-when-needed` artifact so it cannot be mistaken
+for a normal half update. The stock Bluetooth configuration and device name
+(`mona2`) are otherwise unchanged.
 
 For the difference between an ordinary two-file update and a full bond reset,
 see [`docs/PAIRING_RECOVERY.md`](docs/PAIRING_RECOVERY.md).
