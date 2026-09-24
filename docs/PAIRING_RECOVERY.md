@@ -1,12 +1,12 @@
 # moNa2 Bluetooth pairing recovery
 
-The normal keymap, pointer, and behavior update uses only this file:
+The normal firmware artifact contains two side-specific files:
 
-- `mona2-right-central.uf2` on the right central half.
+- `mona2-left-peripheral.uf2` for the left peripheral half.
+- `mona2-right-central.uf2` for the right central half.
 
-The left peripheral is still built inside the generated-contract CI job to
-detect split compatibility regressions, but it is not published because these
-changes do not alter its firmware contract.
+Write each file only to its named half. Never write the right-central image to
+the left half or the left-peripheral image to the right half.
 
 Do not use the pairing-reset image for an ordinary keymap update. It erases the
 saved bonds, so an existing macOS entry will no longer reconnect afterward.

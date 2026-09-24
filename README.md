@@ -59,14 +59,15 @@ and left build, `scripts/verify-built-firmware.py` checks the generated
 devicetree and Kconfig for the accepted physical-unit axes, exactly nine
 layers, unchanged Bluetooth identity, and the intended split roles.
 
-Each normal Actions run publishes one `firmware` artifact containing exactly
-one file: `mona2-right-central.uf2`. The left peripheral is still built
-inside CI as a compatibility check, but is not published because ordinary
-keymap, pointer, and central behavior updates only require the central half.
+Each normal Actions run publishes one downloadable `firmware` artifact
+containing exactly two side-specific files: `mona2-left-peripheral.uf2` and
+`mona2-right-central.uf2`. Flash the left image only to the left peripheral
+and the right image only to the right central; never use one image on both
+halves.
 Pairing reset is available only through an explicit manual-dispatch option and
 can no longer appear during a normal push. Automatic keymap-drawer commits are
 also disabled. The stock Bluetooth configuration and device name (`mona2`) are
 otherwise unchanged.
 
-For the difference between an ordinary one-file update and a full bond reset,
+For the difference between an ordinary side-specific update and a full bond reset,
 see [`docs/PAIRING_RECOVERY.md`](docs/PAIRING_RECOVERY.md).

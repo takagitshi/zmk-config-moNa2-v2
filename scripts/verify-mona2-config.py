@@ -120,12 +120,26 @@ def main() -> int:
             "stock layer LED behavior was removed")
     require('CONFIG_ZMK_STUDIO=y' in right_conf, "standard ZMK Studio was removed")
     require('settings_reset' not in builds, "pairing reset leaked into normal firmware package")
-    require('artifact-name: mona2-right-central' in builds,
-            "right-central artifact is not clearly named")
-    require(len(re.findall(r"^\s+artifact-name:", builds, re.MULTILINE)) == 1,
-            "normal firmware package must contain exactly one image")
-    require('shield: mona2_l' not in builds,
-            "left-peripheral image leaked into the one-file normal package")
+    matrix_entries = []
+    for block in re.findall(r"(?ms)^  - board:.*?(?=^  - board:|\Z)", builds):
+        matrix_entries.append(dict(re.findall(r"^\s+(?:-\s+)?(board|shield|snippet|artifact-name):\s*(.+?)\s*$",
+                                              block, re.MULTILINE)))
+    require(
+        matrix_entries == [
+            {
+                "board": "seeeduino_xiao_ble",
+                "shield": "mona2_l rgbled_adapter",
+                "artifact-name": "mona2-left-peripheral",
+            },
+            {
+                "board": "seeeduino_xiao_ble",
+                "shield": "mona2_r rgbled_adapter",
+                "snippet": "studio-rpc-usb-uart",
+                "artifact-name": "mona2-right-central",
+            },
+        ],
+        f"normal build matrix must contain exact side-specific images: {matrix_entries}",
+    )
     require('shield: settings_reset' in reset_build,
             "separate pairing reset build is missing")
     require('python3 scripts/verify-built-firmware.py' in workflow,

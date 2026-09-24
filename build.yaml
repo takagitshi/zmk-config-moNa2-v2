@@ -19,6 +19,9 @@
 ---
 include:
   - board: seeeduino_xiao_ble
+    shield: mona2_l rgbled_adapter
+    artifact-name: mona2-left-peripheral
+  - board: seeeduino_xiao_ble
     shield: mona2_r rgbled_adapter
     snippet: studio-rpc-usb-uart
     artifact-name: mona2-right-central
