@@ -37,6 +37,9 @@ def main() -> int:
     require('&zip_temp_layer 1 10000' in keymap and '&zip_temp_layer 1 10000' in right,
             "AML timeout path missing")
 
+    layer_ids = sorted(int(value) for value in re.findall(r"\blayer_(\d+)\s*\{", keymap))
+    require(layer_ids == list(range(9)), f"keymap is not exactly nine layers: {layer_ids}")
+
     layers = {}
     for layer_id in range(9):
         layer = re.search(

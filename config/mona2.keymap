@@ -25,7 +25,7 @@
 
 &zip_temp_layer {
     require-prior-idle-ms = <300>;
-    excluded-positions = <17 18 19 21 33 34 41>;
+    excluded-positions = <17 18 19 21 34 35>;
 };
 
 &mkp_input_listener { input-processors = <&zip_temp_layer 1 10000>; };
@@ -177,16 +177,5 @@
             sensor-bindings = <&scroll_up_down>;
         };
 
-        layer_9 {
-            bindings = <
-&trans  &trans  &trans  &trans  &trans                    &trans  &trans  &trans  &trans  &trans
-&trans  &trans  &trans  &trans  &trans            &trans  &trans  &trans  &trans  &trans  &trans
-&trans  &trans  &trans  &trans  &trans  &trans    &trans  &trans  &trans  &trans  &trans  &trans
-&trans  &trans  &trans  &trans  &trans  &trans    &trans  &trans                          &trans
-            >;
-
-            label = "User 9";
-            sensor-bindings = <&scroll_up_down>;
-        };
     };
 };
