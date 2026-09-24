@@ -115,6 +115,23 @@ def main() -> int:
         "base Pointer/Gesture/AML processor order or direction changed",
     )
 
+    scroller = re.search(
+        r"scroller\s*\{(?P<body>.*?)\n\s*\};",
+        right,
+        re.DOTALL,
+    )
+    require(scroller is not None, "right trackball Scroll listener missing")
+    scroller_without_comments = re.sub(r"//[^\n]*", "", scroller.group("body"))
+    normalized_scroller = re.sub(r"\s+", "", scroller_without_comments)
+    require(
+        "layers=<2>;input-processors="
+        "<&zip_xy_transformINPUT_TRANSFORM_X_INVERT>,"
+        "<&zip_xy_to_scroll_mapper>,"
+        "<&zip_scroll_transformINPUT_TRANSFORM_Y_INVERT>,"
+        "<&zip_scroll_scaler110>;process-next;" in normalized_scroller,
+        "Scroll processor order or requested two-axis reversal changed",
+    )
+
     require('CONFIG_PMW3610_REPORT_INTERVAL_MIN=15' in right_conf,
             "15 ms driver aggregation is not enabled")
     require('CONFIG_PMW3610_POINTER_ACCELERATION=y' in right_conf,

@@ -27,8 +27,9 @@ Mouse/pointing behavior:
   keyboard idle, and times out after 10 seconds. Mouse clicks refresh the timer.
 - `Mouse Layer-Tap` uses `&mouse_lt <layer> <MB1..MB5>` so both parameters remain
   editable in Keymap Editor.
-- Layer 2 converts the trackball to scroll while preserving the original moNa2
-  axes and physical scroll scale (`1200 CPI / 10`, equal to the original
+- Layer 2 converts the trackball to scroll. Both vertical and horizontal
+  outputs are reversed from the physically accepted `17b4108` candidate, while
+  retaining its physical scroll scale (`1200 CPI / 10`, equal to the original
   `600 CPI / 5`).
 - Layer 3 recognizes four gestures through the editable I/J/L/comma bindings.
 - Pointer acceleration is implemented at the PMW3610 15 ms X/Y aggregation
@@ -37,8 +38,9 @@ Mouse/pointing behavior:
 - This physical unit keeps the PMW3610 sensor `invert-x` and `invert-y`
   properties disabled. The listener applies one X-axis transform, matching the
   effective orientation used before the customization while leaving the
-  layer-specific Scroll chain unchanged. The generated devicetree contract
-  verifies both the transform and the absence of sensor inversion flags.
+  layer-specific Scroll chain independent. The generated devicetree contract
+  verifies the pointer transform, two-axis Scroll reversal, and absence of
+  sensor inversion flags.
 - ZEN's smooth-scrolling mode, 300-second idle timeout, and 4096-byte input
   thread stack are retained. ZEN-only hardware settings such as `force-awake`,
   non-LiPo battery thresholds, and GPIO status LEDs are intentionally not
