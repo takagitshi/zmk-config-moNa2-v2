@@ -43,7 +43,7 @@ def main() -> int:
         require(prop not in sensor,
                 f"generated physical-unit contract forbids sensor inversion: {prop}")
     require(
-        "input-processors=<&zip_xy_transform0x4>,<&gesture_processor>,"
+        "input-processors=<&zip_xy_transform0x2>,<&gesture_processor>,"
         "<&zip_temp_layer0x10x2710>;" in normalized_listener,
         "generated Pointer/Gesture/AML processor order changed",
     )

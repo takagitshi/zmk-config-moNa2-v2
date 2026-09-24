@@ -24,7 +24,6 @@ def main() -> int:
     right_conf = read("config/mona2_r.conf")
     west = read("config/west.yml")
     builds = read("build.yaml")
-    reset_build = read("build-reset.yaml")
     workflow = read(".github/workflows/build.yml")
 
     names = re.findall(r'display-name\s*=\s*"([^"]+)";', keymap)
@@ -103,7 +102,7 @@ def main() -> int:
             "physical-unit contract forbids active sensor X inversion")
     require(re.search(r"^\s*invert-y;", sensor_body, re.MULTILINE) is None,
             "physical-unit contract forbids active sensor Y inversion")
-    require('<&zip_xy_transform INPUT_TRANSFORM_Y_INVERT>' in right,
+    require('<&zip_xy_transform INPUT_TRANSFORM_X_INVERT>' in right,
             "base pointer direction transform changed")
 
     require('CONFIG_PMW3610_REPORT_INTERVAL_MIN=15' in right_conf,
@@ -119,7 +118,6 @@ def main() -> int:
     require('CONFIG_RGBLED_WIDGET_SHOW_LAYER_COLORS=y' in right_conf,
             "stock layer LED behavior was removed")
     require('CONFIG_ZMK_STUDIO=y' in right_conf, "standard ZMK Studio was removed")
-    require('settings_reset' not in builds, "pairing reset leaked into normal firmware package")
     matrix_entries = []
     for block in re.findall(r"(?ms)^  - board:.*?(?=^  - board:|\Z)", builds):
         matrix_entries.append(dict(re.findall(r"^\s+(?:-\s+)?(board|shield|snippet|artifact-name):\s*(.+?)\s*$",
@@ -137,17 +135,18 @@ def main() -> int:
                 "snippet": "studio-rpc-usb-uart",
                 "artifact-name": "mona2-right-central",
             },
+            {
+                "board": "seeeduino_xiao_ble",
+                "shield": "settings_reset",
+                "artifact-name": "mona2-pairing-reset-use-only-when-needed",
+            },
         ],
-        f"normal build matrix must contain exact side-specific images: {matrix_entries}",
+        f"build matrix must contain exactly left, right, and reset images: {matrix_entries}",
     )
-    require('shield: settings_reset' in reset_build,
-            "separate pairing reset build is missing")
     require('python3 scripts/verify-built-firmware.py' in workflow,
             "generated firmware contract is not enforced in CI")
-    require('archive_name: pairing-reset-use-only-when-needed' in workflow,
-            "pairing reset is not published as a separate CI artifact")
-    require("if: github.event_name == 'workflow_dispatch' && inputs.pairing_reset" in workflow,
-            "pairing reset must be manual-only")
+    require('build-pairing-reset:' not in workflow,
+            "obsolete duplicate pairing-reset job is still present")
     require('branches: [main]' in workflow,
             "feature branch pushes would duplicate pull-request builds")
 

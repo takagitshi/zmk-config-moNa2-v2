@@ -16,12 +16,10 @@ Base, Mouse/AML, Scroll, Gesture, symbol, number, move, setting, and User 8.
 Keys without a safe physical equivalent remain transparent so they can be
 adjusted later in Keymap Editor.
 
-While this hardware candidate remains a Draft PR, select branch
-`codex/zen-lism-customization` in Keymap Editor to see these nine layers. The
-repository default `main` intentionally stays at the rollback-safe seven-layer
-original until the physical pointer, reconnect, sleep/resume, Scroll, and
-Gesture checks pass. After acceptance, merging this branch makes the same
-nine-layer file the normal Keymap Editor default.
+The repository default `main` and Keymap Editor both use this nine-layer
+layout. Risky pointer-direction corrections remain on a Draft PR until the
+physical four-direction, reconnect, sleep/resume, Scroll, and Gesture checks
+pass; the Draft branch does not replace the editable `main` keymap meanwhile.
 
 Mouse/pointing behavior:
 
@@ -34,12 +32,13 @@ Mouse/pointing behavior:
   `600 CPI / 5`).
 - Layer 3 recognizes four gestures through the editable I/J/L/comma bindings.
 - Pointer acceleration is implemented at the PMW3610 15 ms X/Y aggregation
-  boundary. Scroll and Gesture receive raw deltas. `force-awake` remains off.
-- This physical unit must not enable the PMW3610 sensor `invert-x` or
-  `invert-y` properties. Enabling both in the rejected `d5615af` candidate
-  reversed both axes on hardware. The original listener-level direction
-  transform is retained and the absence of both sensor flags is verified from
-  the generated devicetree.
+  boundary. Scroll and Gesture receive unaccelerated deltas. `force-awake`
+  remains off.
+- This physical unit keeps the PMW3610 sensor `invert-x` and `invert-y`
+  properties disabled. The listener applies one X-axis transform, matching the
+  effective orientation used before the customization while leaving the
+  layer-specific Scroll chain unchanged. The generated devicetree contract
+  verifies both the transform and the absence of sensor inversion flags.
 - ZEN's smooth-scrolling mode, 300-second idle timeout, and 4096-byte input
   thread stack are retained. ZEN-only hardware settings such as `force-awake`,
   non-LiPo battery thresholds, and GPIO status LEDs are intentionally not
@@ -59,15 +58,19 @@ and left build, `scripts/verify-built-firmware.py` checks the generated
 devicetree and Kconfig for the accepted physical-unit axes, exactly nine
 layers, unchanged Bluetooth identity, and the intended split roles.
 
-Each normal Actions run publishes one downloadable `firmware` artifact
-containing exactly two side-specific files: `mona2-left-peripheral.uf2` and
-`mona2-right-central.uf2`. Flash the left image only to the left peripheral
-and the right image only to the right central; never use one image on both
-halves.
-Pairing reset is available only through an explicit manual-dispatch option and
-can no longer appear during a normal push. Automatic keymap-drawer commits are
-also disabled. The stock Bluetooth configuration and device name (`mona2`) are
-otherwise unchanged.
+Each Actions run publishes one downloadable `firmware` artifact containing
+exactly three files: `mona2-left-peripheral.uf2`,
+`mona2-right-central.uf2`, and
+`mona2-pairing-reset-use-only-when-needed.uf2`. Flash the left image only to
+the left peripheral and the right image only to the right central; never use
+one image on both halves. The reset image is included for recovery but must not
+be used during an ordinary update because it erases saved bonds. Automatic
+keymap-drawer commits are disabled. The stock Bluetooth configuration and
+device name (`mona2`) are otherwise unchanged.
+
+With the stock layer-color defaults retained, trackball activity temporarily
+activates Mouse layer 1 and shows a solid red LED on the right central for the
+10-second AML timeout. This is a layer indicator, not an error condition.
 
 For the difference between an ordinary side-specific update and a full bond reset,
 see [`docs/PAIRING_RECOVERY.md`](docs/PAIRING_RECOVERY.md).

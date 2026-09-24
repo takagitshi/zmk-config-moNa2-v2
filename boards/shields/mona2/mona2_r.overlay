@@ -62,10 +62,8 @@
         pointer-acceleration-idle-reset-ms = <60>;
         pointer-acceleration-scroll-layer = <2>;
         pointer-acceleration-gesture-layer = <3>;
-        // Keep sensor-axis flags disabled on this physical unit. Enabling both
-        // invert-x and invert-y at d5615af reversed both axes in hardware.
-        // Pointer, Scroll, and Gesture direction is normalized by the existing
-        // listener processors below.
+        // Keep sensor-axis flags disabled. Pointer and Gesture direction is
+        // normalized once by the listener; Scroll keeps its stock chain.
         //swap-xy;
         //invert-x;
         //invert-y;
@@ -82,7 +80,7 @@
     device = <&trackball_central>;
 
     input-processors =
-        <&zip_xy_transform INPUT_TRANSFORM_Y_INVERT>,
+        <&zip_xy_transform INPUT_TRANSFORM_X_INVERT>,
         <&gesture_processor>,
         <&zip_temp_layer 1 10000>;
 
