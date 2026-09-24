@@ -4,8 +4,8 @@ manifest:
       url-base: https://github.com/zmkfirmware
     - name: sayu-hub
       url-base: https://github.com/sayu-hub
-    - name: badjeff    # <-- PMW3610
-      url-base: https://github.com/badjeff
+    - name: takagitshi  # <-- owned PMW3610 fork
+      url-base: https://github.com/takagitshi
     # - name: sekigon-gonnoc  # <-- PAW3222
     #   url-base: https://github.com/sekigon-gonnoc
     - name: caksoylar  # <-- RGB LED
@@ -15,19 +15,19 @@ manifest:
   projects:
     - name: zmk
       remote: zmkfirmware
-      revision: v0.3-branch
+      revision: acfd8e5ea76cf23ad1c9b6b99848f97a95224257
       import: app/west.yml
     - name: zmk-pmw3610-driver
-      remote: badjeff
-      revision: zmk-0.3
+      remote: takagitshi
+      revision: d2959146ee7f32aab8e201794cf46be49a310e39
     # - name: zmk-driver-paw3222
     #   remote: sekigon-gonnoc
     #   revision: main
     - name: zmk-rgbled-widget
       remote: caksoylar
-      revision: v0.3-branch
+      revision: 8756cb7b8114069fa3c25c6f6c990f24988fceff
     - name: zmk-input-processor-keybind
       remote: zettaface
-      revision: main
+      revision: 64303bd3932bfa7f49261fc6d0c9a3fdd06f8271
   self:
     path: config
