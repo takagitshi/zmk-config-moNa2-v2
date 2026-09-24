@@ -102,8 +102,18 @@ def main() -> int:
             "physical-unit contract forbids active sensor X inversion")
     require(re.search(r"^\s*invert-y;", sensor_body, re.MULTILINE) is None,
             "physical-unit contract forbids active sensor Y inversion")
-    require('<&zip_xy_transform INPUT_TRANSFORM_X_INVERT>' in right,
-            "base pointer direction transform changed")
+    base_listener = re.search(
+        r"&trackball_central_listener\s*\{(?P<body>.*?)\n\s*scroller\s*\{",
+        right,
+        re.DOTALL,
+    )
+    require(base_listener is not None, "right trackball base listener missing")
+    normalized_base_listener = re.sub(r"\s+", "", base_listener.group("body"))
+    require(
+        "input-processors=<&zip_xy_transformINPUT_TRANSFORM_X_INVERT>,"
+        "<&gesture_processor>,<&zip_temp_layer110000>;" in normalized_base_listener,
+        "base Pointer/Gesture/AML processor order or direction changed",
+    )
 
     require('CONFIG_PMW3610_REPORT_INTERVAL_MIN=15' in right_conf,
             "15 ms driver aggregation is not enabled")
