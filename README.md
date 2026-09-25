@@ -29,28 +29,25 @@ Mouse/pointing behavior:
   editable in Keymap Editor.
 - Layer 2 converts the trackball to scroll. Both vertical and horizontal
   outputs are reversed from the physically accepted `17b4108` candidate, while
-  using cascaded `1/10` and `1/3` scalers for an effective `1/30` scale. This
-  reduces raw Scroll output to exactly one third of the physically tested
-  `1/10` candidate, for an expected roughly three-times-slower feel. Each
+  using cascaded `1/10` and `1/6` scalers for an effective `1/60` scale. Each
   scaler stays within ZMK's recommended parameter limit and retains remainders
   for low-speed motion.
 - Layer 3 recognizes four gestures through the editable I/J/L/comma bindings.
 - Pointer acceleration is implemented at the PMW3610 15 ms X/Y aggregation
-  boundary. A 0.333x precision region gives approximately 400 effective CPI at
-  normalized speeds through 16, then rejoins the existing 0.5x curve smoothly
-  at speed 32. Every multiplier from speed 32 upward remains bit-identical to
-  the previous medium/high response. Scroll and Gesture receive unaccelerated
-  deltas. `force-awake` remains off.
+  boundary. It uses ZEN's 1200 CPI curve: 0.5x base gain, acceleration from
+  normalized speed 32 through 160, and a 3.0x maximum gain. Scroll and Gesture
+  receive unaccelerated deltas. `force-awake` is enabled and the RUN-to-REST1
+  downshift is 3264 ms.
 - This physical unit keeps the PMW3610 sensor `invert-x` and `invert-y`
   properties disabled. The listener applies one X-axis transform, matching the
   effective orientation used before the customization while leaving the
   layer-specific Scroll chain independent. The generated devicetree contract
   verifies the pointer transform, two-axis Scroll reversal, and absence of
   sensor inversion flags.
-- ZEN's smooth-scrolling mode, 300-second idle timeout, and 4096-byte input
-  thread stack are retained. ZEN-only hardware settings such as `force-awake`,
-  non-LiPo battery thresholds, and GPIO status LEDs are intentionally not
-  copied to moNa2.
+- Both halves enter idle after 5 minutes and deep sleep after 30 minutes,
+  matching LisM. PM soft-off remains disabled. ZEN's smooth-scrolling mode and
+  4096-byte input thread stack are retained. ZEN-only non-LiPo battery
+  thresholds and GPIO status LEDs are intentionally not copied to moNa2.
 
 The PMW3610 dependency is an owned, commit-pinned fork that retains final motion
 samples and retries unsent non-blocking reports. ZMK, the RGB widget, and the

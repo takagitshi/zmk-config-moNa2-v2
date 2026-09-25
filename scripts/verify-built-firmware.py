@@ -39,6 +39,7 @@ def main() -> int:
 
     for prop in (
         "pointer-acceleration;",
+        "force-awake;",
         "cpi = < 0x4b0 >;",
         "pointer-acceleration-base-gain-milli = < 0x1f4 >;",
         "pointer-acceleration-takeoff-speed = < 0x20 >;",
@@ -46,13 +47,12 @@ def main() -> int:
         "pointer-acceleration-max-gain-milli = < 0xbb8 >;",
         "pointer-acceleration-reference-interval-ms = < 0xf >;",
         "pointer-acceleration-idle-reset-ms = < 0x3c >;",
-        "pointer-acceleration-precision-mode;",
-        "pointer-acceleration-precision-gain-milli = < 0x14d >;",
-        "pointer-acceleration-precision-speed = < 0x10 >;",
         "pointer-acceleration-scroll-layer = < 0x2 >;",
         "pointer-acceleration-gesture-layer = < 0x3 >;",
     ):
         require(prop in sensor, f"generated pointer contract missing: {prop}")
+    require("pointer-acceleration-precision-mode;" not in sensor,
+            "generated sensor unexpectedly retains precision mode")
     for prop in ("invert-x;", "invert-y;"):
         require(prop not in sensor,
                 f"generated physical-unit contract forbids sensor inversion: {prop}")
@@ -64,7 +64,7 @@ def main() -> int:
     require(
         "input-processors=<&zip_xy_transform0x2>,<&zip_xy_to_scroll_mapper>,"
         "<&zip_scroll_transform0x4>,<&zip_scroll_scaler0x10xa>,"
-        "<&zip_scroll_scaler0x10x3>;" in normalized_listener,
+        "<&zip_scroll_scaler0x10x6>;" in normalized_listener,
         "generated Scroll processor order changed",
     )
     require("process-next;" in normalized_listener,
@@ -87,14 +87,26 @@ def main() -> int:
             "right-central Bluetooth name changed")
     require('CONFIG_INPUT_THREAD_STACK_SIZE=4096' in right_config,
             "right-central input thread stack changed")
-    require('CONFIG_ZMK_IDLE_TIMEOUT=300000' in right_config,
-            "right-central idle timeout changed")
+    require('CONFIG_PMW3610_REPORT_INTERVAL_MIN=15' in right_config,
+            "right-central PMW3610 aggregation interval changed")
+    require('CONFIG_PMW3610_RUN_DOWNSHIFT_TIME_MS=3264' in right_config,
+            "right-central PMW3610 run-to-rest downshift changed")
     require('CONFIG_RGBLED_WIDGET_LAYER_1_COLOR=7' in right_config,
             "right-central Mouse / AML layer is not white")
     require('CONFIG_RGBLED_WIDGET_LAYER_7_COLOR=1' in right_config,
             "right-central setting layer is not red")
     require(not enabled(right_config, "CONFIG_ZMK_SETTINGS_RESET_ON_START"),
             "right-central normal firmware would erase settings on boot")
+
+    for name, config in (("right-central", right_config),
+                         ("left-peripheral", left_config)):
+        require(enabled(config, "CONFIG_ZMK_SLEEP"), f"{name} deep sleep is disabled")
+        require('CONFIG_ZMK_IDLE_TIMEOUT=300000' in config,
+                f"{name} idle timeout is not 5 minutes")
+        require('CONFIG_ZMK_IDLE_SLEEP_TIMEOUT=1800000' in config,
+                f"{name} deep-sleep timeout is not 30 minutes")
+        require(not enabled(config, "CONFIG_ZMK_PM_SOFT_OFF"),
+                f"{name} unexpectedly enables PM soft-off")
 
     for symbol in ("CONFIG_ZMK_BLE", "CONFIG_ZMK_SPLIT"):
         require(enabled(left_config, symbol), f"left-peripheral build missing {symbol}")

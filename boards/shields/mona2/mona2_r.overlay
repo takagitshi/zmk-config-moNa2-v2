@@ -60,9 +60,6 @@
         pointer-acceleration-max-gain-milli = <3000>;
         pointer-acceleration-reference-interval-ms = <15>;
         pointer-acceleration-idle-reset-ms = <60>;
-        pointer-acceleration-precision-mode;
-        pointer-acceleration-precision-gain-milli = <333>;
-        pointer-acceleration-precision-speed = <16>;
         pointer-acceleration-scroll-layer = <2>;
         pointer-acceleration-gesture-layer = <3>;
         // Keep sensor-axis flags disabled. Pointer and Gesture direction is
@@ -73,6 +70,7 @@
         evt-type = <INPUT_EV_REL>;
         x-input-code = <INPUT_REL_X>;
         y-input-code = <INPUT_REL_Y>;
+        force-awake;
     };
 };
 
@@ -97,7 +95,7 @@
             <&zip_xy_to_scroll_mapper>,                         //スクロールモードに変更
             <&zip_scroll_transform INPUT_TRANSFORM_Y_INVERT>,
             <&zip_scroll_scaler 1 10>,                         //既存スケール
-            <&zip_scroll_scaler 1 3>;                          //実機調整: 合計1/30
+            <&zip_scroll_scaler 1 6>;                          //ZEN設定: 合計1/60
         process-next;
     };
 

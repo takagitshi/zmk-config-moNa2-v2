@@ -21,6 +21,7 @@ def main() -> int:
     keymap = read("config/mona2.keymap")
     dtsi = read("boards/shields/mona2/mona2.dtsi")
     right = read("boards/shields/mona2/mona2_r.overlay")
+    left_conf = read("config/mona2_l.conf")
     right_conf = read("config/mona2_r.conf")
     west = read("config/west.yml")
     builds = read("build.yaml")
@@ -90,13 +91,11 @@ def main() -> int:
         'pointer-acceleration-max-gain-milli = <3000>;',
         'pointer-acceleration-reference-interval-ms = <15>;',
         'pointer-acceleration-idle-reset-ms = <60>;',
-        'pointer-acceleration-precision-mode;',
-        'pointer-acceleration-precision-gain-milli = <333>;',
-        'pointer-acceleration-precision-speed = <16>;',
         'pointer-acceleration-scroll-layer = <2>;',
         'pointer-acceleration-gesture-layer = <3>;',
+        'force-awake;',
         'layers = <2>;', '<&zip_scroll_scaler 1 10>,',
-        '<&zip_scroll_scaler 1 3>;', 'process-next;',
+        '<&zip_scroll_scaler 1 6>;', 'process-next;',
     ):
         require(fragment in right, f"pointer contract missing: {fragment}")
 
@@ -107,6 +106,8 @@ def main() -> int:
     )
     require(sensor_block is not None, "trackball sensor node missing")
     sensor_body = sensor_block.group("body")
+    require('pointer-acceleration-precision-mode;' not in sensor_body,
+            "ZEN pointer contract forbids moNa2-only precision mode")
     require(re.search(r"^\s*invert-x;", sensor_body, re.MULTILINE) is None,
             "physical-unit contract forbids active sensor X inversion")
     require(re.search(r"^\s*invert-y;", sensor_body, re.MULTILINE) is None,
@@ -138,20 +139,28 @@ def main() -> int:
         "<&zip_xy_to_scroll_mapper>,"
         "<&zip_scroll_transformINPUT_TRANSFORM_Y_INVERT>,"
         "<&zip_scroll_scaler110>,"
-        "<&zip_scroll_scaler13>;process-next;" in normalized_scroller,
+        "<&zip_scroll_scaler16>;process-next;" in normalized_scroller,
         "Scroll processor order or requested two-axis reversal changed",
     )
 
     require('CONFIG_PMW3610_REPORT_INTERVAL_MIN=15' in right_conf,
             "15 ms driver aggregation is not enabled")
+    require('CONFIG_PMW3610_RUN_DOWNSHIFT_TIME_MS=3264' in right_conf,
+            "ZEN run-to-rest downshift time is not enabled")
     require('CONFIG_PMW3610_POINTER_ACCELERATION=y' in right_conf,
             "pointer acceleration Kconfig is not enabled")
     require('CONFIG_ZMK_POINTING_SMOOTH_SCROLLING=y' in right_conf,
             "ZEN smooth scrolling behavior is not enabled")
     require('CONFIG_INPUT_THREAD_STACK_SIZE=4096' in right_conf,
             "input thread stack is too small for the custom pointer pipeline")
-    require('CONFIG_ZMK_IDLE_TIMEOUT=300000' in right_conf,
-            "ZEN idle timeout is not preserved")
+    for name, conf in (("left", left_conf), ("right", right_conf)):
+        require('CONFIG_ZMK_SLEEP=y' in conf, f"{name} deep sleep is not enabled")
+        require('CONFIG_ZMK_IDLE_TIMEOUT=300000' in conf,
+                f"{name} idle timeout is not 5 minutes")
+        require('CONFIG_ZMK_IDLE_SLEEP_TIMEOUT=1800000' in conf,
+                f"{name} deep-sleep timeout is not 30 minutes")
+        require('CONFIG_ZMK_PM_SOFT_OFF=y' not in conf,
+                f"{name} unexpectedly enables PM soft-off")
     require('CONFIG_RGBLED_WIDGET_SHOW_LAYER_COLORS=y' in right_conf,
             "stock layer LED behavior was removed")
     require('CONFIG_RGBLED_WIDGET_LAYER_1_COLOR=7' in right_conf,
