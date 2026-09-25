@@ -87,7 +87,8 @@ def main() -> int:
         'pointer-acceleration-reference-interval-ms = <15>;',
         'pointer-acceleration-scroll-layer = <2>;',
         'pointer-acceleration-gesture-layer = <3>;',
-        'layers = <2>;', '<&zip_scroll_scaler 1 10>;', 'process-next;',
+        'layers = <2>;', '<&zip_scroll_scaler 1 10>,',
+        '<&zip_scroll_scaler 1 3>;', 'process-next;',
     ):
         require(fragment in right, f"pointer contract missing: {fragment}")
 
@@ -128,7 +129,8 @@ def main() -> int:
         "<&zip_xy_transformINPUT_TRANSFORM_X_INVERT>,"
         "<&zip_xy_to_scroll_mapper>,"
         "<&zip_scroll_transformINPUT_TRANSFORM_Y_INVERT>,"
-        "<&zip_scroll_scaler110>;process-next;" in normalized_scroller,
+        "<&zip_scroll_scaler110>,"
+        "<&zip_scroll_scaler13>;process-next;" in normalized_scroller,
         "Scroll processor order or requested two-axis reversal changed",
     )
 

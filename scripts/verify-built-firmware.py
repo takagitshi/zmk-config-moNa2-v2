@@ -49,7 +49,8 @@ def main() -> int:
     )
     require(
         "input-processors=<&zip_xy_transform0x2>,<&zip_xy_to_scroll_mapper>,"
-        "<&zip_scroll_transform0x4>,<&zip_scroll_scaler0x10xa>;" in normalized_listener,
+        "<&zip_scroll_transform0x4>,<&zip_scroll_scaler0x10xa>,"
+        "<&zip_scroll_scaler0x10x3>;" in normalized_listener,
         "generated Scroll processor order changed",
     )
     require("process-next;" in normalized_listener,

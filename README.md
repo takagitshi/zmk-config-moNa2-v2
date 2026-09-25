@@ -29,8 +29,11 @@ Mouse/pointing behavior:
   editable in Keymap Editor.
 - Layer 2 converts the trackball to scroll. Both vertical and horizontal
   outputs are reversed from the physically accepted `17b4108` candidate, while
-  retaining its physical scroll scale (`1200 CPI / 10`, equal to the original
-  `600 CPI / 5`).
+  using cascaded `1/10` and `1/3` scalers for an effective `1/30` scale. This
+  reduces raw Scroll output to exactly one third of the physically tested
+  `1/10` candidate, for an expected roughly three-times-slower feel. Each
+  scaler stays within ZMK's recommended parameter limit and retains remainders
+  for low-speed motion.
 - Layer 3 recognizes four gestures through the editable I/J/L/comma bindings.
 - Pointer acceleration is implemented at the PMW3610 15 ms X/Y aggregation
   boundary. Scroll and Gesture receive unaccelerated deltas. `force-awake`

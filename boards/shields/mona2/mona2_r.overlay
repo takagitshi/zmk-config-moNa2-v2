@@ -63,7 +63,7 @@
         pointer-acceleration-scroll-layer = <2>;
         pointer-acceleration-gesture-layer = <3>;
         // Keep sensor-axis flags disabled. Pointer and Gesture direction is
-        // normalized once by the listener; Scroll keeps its stock chain.
+        // normalized once by the listener; Scroll uses its separate chain.
         //swap-xy;
         //invert-x;
         //invert-y;
@@ -93,7 +93,8 @@
             <&zip_xy_transform INPUT_TRANSFORM_X_INVERT>,       //X軸反転
             <&zip_xy_to_scroll_mapper>,                         //スクロールモードに変更
             <&zip_scroll_transform INPUT_TRANSFORM_Y_INVERT>,
-            <&zip_scroll_scaler 1 10>;                          //1200 CPIで従来600 CPI/1:5相当
+            <&zip_scroll_scaler 1 10>,                         //既存スケール
+            <&zip_scroll_scaler 1 3>;                          //実機調整: 合計1/30
         process-next;
     };
 
