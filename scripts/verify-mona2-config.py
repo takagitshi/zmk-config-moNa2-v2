@@ -154,6 +154,10 @@ def main() -> int:
             "ZEN idle timeout is not preserved")
     require('CONFIG_RGBLED_WIDGET_SHOW_LAYER_COLORS=y' in right_conf,
             "stock layer LED behavior was removed")
+    require('CONFIG_RGBLED_WIDGET_LAYER_1_COLOR=7' in right_conf,
+            "Mouse / AML layer must use white LED")
+    require('CONFIG_RGBLED_WIDGET_LAYER_7_COLOR=1' in right_conf,
+            "setting layer must use red LED")
     require('CONFIG_ZMK_STUDIO=y' in right_conf, "standard ZMK Studio was removed")
     matrix_entries = []
     for block in re.findall(r"(?ms)^  - board:.*?(?=^  - board:|\Z)", builds):

@@ -76,9 +76,11 @@ be used during an ordinary update because it erases saved bonds. Automatic
 keymap-drawer commits are disabled. The stock Bluetooth configuration and
 device name (`mona2`) are otherwise unchanged.
 
-With the stock layer-color defaults retained, trackball activity temporarily
-activates Mouse layer 1 and shows a solid red LED on the right central for the
-10-second AML timeout. This is a layer indicator, not an error condition.
+The right-central layer indicator uses white for Mouse / AML layer 1 and red
+for setting layer 7. Trackball activity temporarily activates Mouse layer 1,
+so the LED stays white for the 10-second AML timeout. This is a layer
+indicator, not an error condition. Other layer colors retain the widget
+defaults.
 
 For the difference between an ordinary side-specific update and a full bond reset,
 see [`docs/PAIRING_RECOVERY.md`](docs/PAIRING_RECOVERY.md).

@@ -89,6 +89,10 @@ def main() -> int:
             "right-central input thread stack changed")
     require('CONFIG_ZMK_IDLE_TIMEOUT=300000' in right_config,
             "right-central idle timeout changed")
+    require('CONFIG_RGBLED_WIDGET_LAYER_1_COLOR=7' in right_config,
+            "right-central Mouse / AML layer is not white")
+    require('CONFIG_RGBLED_WIDGET_LAYER_7_COLOR=1' in right_config,
+            "right-central setting layer is not red")
     require(not enabled(right_config, "CONFIG_ZMK_SETTINGS_RESET_ON_START"),
             "right-central normal firmware would erase settings on boot")
 
