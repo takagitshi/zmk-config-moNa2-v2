@@ -83,6 +83,15 @@ def main() -> int:
     ):
         require(fragment in dtsi, f"gesture contract missing: {fragment}")
 
+    matrix = re.search(
+        r"kscan0:\s*kscan\s*\{(?P<body>.*?)\n\s*\};",
+        dtsi,
+        re.DOTALL,
+    )
+    require(matrix is not None, "shared keyboard matrix node missing")
+    require('wakeup-source;' in matrix.group("body"),
+            "shared left/right matrix cannot wake from deep sleep")
+
     for fragment in (
         'cpi = <1200>;', 'pointer-acceleration;',
         'pointer-acceleration-base-gain-milli = <500>;',

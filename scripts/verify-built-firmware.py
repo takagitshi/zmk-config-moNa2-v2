@@ -37,6 +37,11 @@ def main() -> int:
     listener = node_body(right_dts, "trackball_central_listener")
     normalized_listener = re.sub(r"\s+", "", listener)
 
+    for name, dts in (("right-central", right_dts), ("left-peripheral", left_dts)):
+        matrix = node_body(dts, "kscan0")
+        require("wakeup-source;" in matrix,
+                f"{name} matrix cannot wake from deep sleep")
+
     for prop in (
         "pointer-acceleration;",
         "force-awake;",

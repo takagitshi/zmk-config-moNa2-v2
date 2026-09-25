@@ -48,6 +48,9 @@ Mouse/pointing behavior:
   matching LisM. PM soft-off remains disabled. ZEN's smooth-scrolling mode and
   4096-byte input thread stack are retained. ZEN-only non-LiPo battery
   thresholds and GPIO status LEDs are intentionally not copied to moNa2.
+- The shared left/right key matrix is a deep-sleep wake source, so pressing any
+  matrix key wakes its own half. The first press may be consumed by boot and BLE
+  reconnection instead of being sent as a character.
 
 The PMW3610 dependency is an owned, commit-pinned fork that retains final motion
 samples and retries unsent non-blocking reports. ZMK, the RGB widget, and the
