@@ -19,7 +19,7 @@ manifest:
       import: app/west.yml
     - name: zmk-pmw3610-driver
       remote: takagitshi
-      revision: d2959146ee7f32aab8e201794cf46be49a310e39
+      revision: 55c0fd19c926c993d3107dff256e91acfa2c0d62
     # - name: zmk-driver-paw3222
     #   remote: sekigon-gonnoc
     #   revision: main

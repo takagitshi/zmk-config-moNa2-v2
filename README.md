@@ -36,8 +36,11 @@ Mouse/pointing behavior:
   for low-speed motion.
 - Layer 3 recognizes four gestures through the editable I/J/L/comma bindings.
 - Pointer acceleration is implemented at the PMW3610 15 ms X/Y aggregation
-  boundary. Scroll and Gesture receive unaccelerated deltas. `force-awake`
-  remains off.
+  boundary. A 0.333x precision region gives approximately 400 effective CPI at
+  normalized speeds through 16, then rejoins the existing 0.5x curve smoothly
+  at speed 32. Every multiplier from speed 32 upward remains bit-identical to
+  the previous medium/high response. Scroll and Gesture receive unaccelerated
+  deltas. `force-awake` remains off.
 - This physical unit keeps the PMW3610 sensor `invert-x` and `invert-y`
   properties disabled. The listener applies one X-axis transform, matching the
   effective orientation used before the customization while leaving the

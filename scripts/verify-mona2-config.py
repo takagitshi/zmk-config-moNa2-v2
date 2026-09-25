@@ -84,7 +84,15 @@ def main() -> int:
 
     for fragment in (
         'cpi = <1200>;', 'pointer-acceleration;',
+        'pointer-acceleration-base-gain-milli = <500>;',
+        'pointer-acceleration-takeoff-speed = <32>;',
+        'pointer-acceleration-full-speed = <160>;',
+        'pointer-acceleration-max-gain-milli = <3000>;',
         'pointer-acceleration-reference-interval-ms = <15>;',
+        'pointer-acceleration-idle-reset-ms = <60>;',
+        'pointer-acceleration-precision-mode;',
+        'pointer-acceleration-precision-gain-milli = <333>;',
+        'pointer-acceleration-precision-speed = <16>;',
         'pointer-acceleration-scroll-layer = <2>;',
         'pointer-acceleration-gesture-layer = <3>;',
         'layers = <2>;', '<&zip_scroll_scaler 1 10>,',
@@ -185,6 +193,8 @@ def main() -> int:
 
     revisions = re.findall(r"revision:\s*([0-9a-f]{40})", west)
     require(len(revisions) == 4, f"expected four pinned dependencies, found {len(revisions)}")
+    require('revision: 55c0fd19c926c993d3107dff256e91acfa2c0d62' in west,
+            "precision-capable PMW3610 driver commit is not pinned")
     for forbidden in ("cormoran", "custom-settings", "runtime-input-processor"):
         require(forbidden not in west, f"DYA-only dependency present: {forbidden}")
 

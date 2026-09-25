@@ -37,7 +37,21 @@ def main() -> int:
     listener = node_body(right_dts, "trackball_central_listener")
     normalized_listener = re.sub(r"\s+", "", listener)
 
-    for prop in ("pointer-acceleration;", "cpi = < 0x4b0 >;"):
+    for prop in (
+        "pointer-acceleration;",
+        "cpi = < 0x4b0 >;",
+        "pointer-acceleration-base-gain-milli = < 0x1f4 >;",
+        "pointer-acceleration-takeoff-speed = < 0x20 >;",
+        "pointer-acceleration-full-speed = < 0xa0 >;",
+        "pointer-acceleration-max-gain-milli = < 0xbb8 >;",
+        "pointer-acceleration-reference-interval-ms = < 0xf >;",
+        "pointer-acceleration-idle-reset-ms = < 0x3c >;",
+        "pointer-acceleration-precision-mode;",
+        "pointer-acceleration-precision-gain-milli = < 0x14d >;",
+        "pointer-acceleration-precision-speed = < 0x10 >;",
+        "pointer-acceleration-scroll-layer = < 0x2 >;",
+        "pointer-acceleration-gesture-layer = < 0x3 >;",
+    ):
         require(prop in sensor, f"generated pointer contract missing: {prop}")
     for prop in ("invert-x;", "invert-y;"):
         require(prop not in sensor,

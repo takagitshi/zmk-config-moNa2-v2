@@ -60,6 +60,9 @@
         pointer-acceleration-max-gain-milli = <3000>;
         pointer-acceleration-reference-interval-ms = <15>;
         pointer-acceleration-idle-reset-ms = <60>;
+        pointer-acceleration-precision-mode;
+        pointer-acceleration-precision-gain-milli = <333>;
+        pointer-acceleration-precision-speed = <16>;
         pointer-acceleration-scroll-layer = <2>;
         pointer-acceleration-gesture-layer = <3>;
         // Keep sensor-axis flags disabled. Pointer and Gesture direction is
