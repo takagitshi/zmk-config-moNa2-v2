@@ -25,3 +25,6 @@ include:
     shield: mona2_r rgbled_adapter
     snippet: studio-rpc-usb-uart
     artifact-name: mona2-right-central
+  - board: seeeduino_xiao_ble
+    shield: settings_reset
+    artifact-name: mona2-pairing-reset-use-only-when-needed

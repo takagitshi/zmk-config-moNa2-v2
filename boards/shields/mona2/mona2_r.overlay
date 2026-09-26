@@ -62,16 +62,16 @@
         pointer-acceleration-idle-reset-ms = <60>;
         pointer-acceleration-scroll-layer = <2>;
         pointer-acceleration-gesture-layer = <3>;
-        // Keep sensor-axis flags disabled on this physical unit. Enabling both
-        // invert-x and invert-y at d5615af reversed both axes in hardware.
-        // Pointer, Scroll, and Gesture direction is normalized by the existing
-        // listener processors below.
+        pointer-acceleration-gesture-layer-2 = <4>;
+        // Keep sensor-axis flags disabled. Pointer and Gesture direction is
+        // normalized once by the listener; Scroll uses its separate chain.
         //swap-xy;
         //invert-x;
         //invert-y;
         evt-type = <INPUT_EV_REL>;
         x-input-code = <INPUT_REL_X>;
         y-input-code = <INPUT_REL_Y>;
+        force-awake;
     };
 };
 
@@ -82,23 +82,31 @@
     device = <&trackball_central>;
 
     input-processors =
-        <&zip_xy_transform INPUT_TRANSFORM_Y_INVERT>,
+        <&zip_xy_transform INPUT_TRANSFORM_X_INVERT>,
+        <&gesture_2_processor>,
         <&gesture_processor>,
         <&zip_temp_layer 1 10000>;
 
     scroller {
         layers = <2>;
+        // Reverse both outputs from the accepted 17b4108 candidate. The
+        // pre-mapper X inversion plus post-mapper Y inversion flips both.
         input-processors = 
             // <&zip_xy_transform INPUT_TRANSFORM_XY_SWAP>,        //X軸とY軸の入れ替え
             <&zip_xy_transform INPUT_TRANSFORM_X_INVERT>,       //X軸反転
             <&zip_xy_to_scroll_mapper>,                         //スクロールモードに変更
-            <&zip_scroll_transform INPUT_TRANSFORM_X_INVERT>,   //スクロールのX軸反転
-            <&zip_scroll_scaler 1 10>;                          //1200 CPIで従来600 CPI/1:5相当
+            <&zip_scroll_transform INPUT_TRANSFORM_Y_INVERT>,
+            <&zip_scroll_scaler 1 10>,                         //既存スケール
+            <&zip_scroll_scaler 1 6>;                          //ZEN設定: 合計1/60
         process-next;
     };
 
 };
 
 &gesture_processor {
+    status = "okay";
+};
+
+&gesture_2_processor {
     status = "okay";
 };

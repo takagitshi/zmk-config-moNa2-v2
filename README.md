@@ -11,39 +11,56 @@ and `zmk-rgbled-widget` layer/battery LED behavior.
 The only editable layout source is the Keymap Editor-compatible
 `config/mona2.keymap`. The shield's bundled keymap is only a fallback and is
 not compared with the editable file, so a normal Keymap Editor commit cannot
-be rejected merely because the fallback did not change. The nine layers are
-Base, Mouse/AML, Scroll, Gesture, symbol, number, move, setting, and User 8.
+be rejected merely because the fallback did not change. The ten layers are
+Base, Mouse/AML, Scroll, Gesture 1, Gesture 2, symbol, number, move, setting,
+and User 9.
 Keys without a safe physical equivalent remain transparent so they can be
 adjusted later in Keymap Editor.
 
-While this hardware candidate remains a Draft PR, select branch
-`codex/zen-lism-customization` in Keymap Editor to see these nine layers. The
-repository default `main` intentionally stays at the rollback-safe seven-layer
-original until the physical pointer, reconnect, sleep/resume, Scroll, and
-Gesture checks pass. After acceptance, merging this branch makes the same
-nine-layer file the normal Keymap Editor default.
+This Draft branch and Keymap Editor both use this ten-layer layout. It does
+not replace the repository default `main` until the physical checks pass.
+Risky pointer-direction corrections remain on a Draft PR until the
+physical four-direction, reconnect, sleep/resume, Scroll, and Gesture checks
+pass; the Draft branch does not replace the editable `main` keymap meanwhile.
 
 Mouse/pointing behavior:
 
 - Auto Mouse Layer selects Layer 1 after pointer motion, waits for 300 ms of
   keyboard idle, and times out after 10 seconds. Mouse clicks refresh the timer.
+- AML exclusions are derived from every non-transparent/non-none Mouse-layer
+  binding. The current seven positions are 17/18/19/20/21/34/35, including the
+  explicit minus key at the same physical position as Base `-`.
 - `Mouse Layer-Tap` uses `&mouse_lt <layer> <MB1..MB5>` so both parameters remain
   editable in Keymap Editor.
-- Layer 2 converts the trackball to scroll while preserving the original moNa2
-  axes and physical scroll scale (`1200 CPI / 10`, equal to the original
-  `600 CPI / 5`).
-- Layer 3 recognizes four gestures through the editable I/J/L/comma bindings.
+- Layer 2 converts the trackball to scroll. Both vertical and horizontal
+  outputs are reversed from the physically accepted `17b4108` candidate, while
+  using cascaded `1/10` and `1/6` scalers for an effective `1/60` scale. Each
+  scaler stays within ZMK's recommended parameter limit and retains remainders
+  for low-speed motion.
+- Layer 3 (Gesture 1) recognizes four gestures through the editable
+  I/J/L/comma bindings. Layer 4 (Gesture 2) uses the same physical slots and
+  reads their normal keymap bindings, so Keymap Editor can change each action.
+  Its initial actions are Command+T (up), Control+Shift+Tab (left), Control+Tab
+  (right), and Command+Shift+N (down). On Mouse layer, the added left Command
+  key taps Command and holds Gesture 2.
 - Pointer acceleration is implemented at the PMW3610 15 ms X/Y aggregation
-  boundary. Scroll and Gesture receive raw deltas. `force-awake` remains off.
-- This physical unit must not enable the PMW3610 sensor `invert-x` or
-  `invert-y` properties. Enabling both in the rejected `d5615af` candidate
-  reversed both axes on hardware. The original listener-level direction
-  transform is retained and the absence of both sensor flags is verified from
-  the generated devicetree.
-- ZEN's smooth-scrolling mode, 300-second idle timeout, and 4096-byte input
-  thread stack are retained. ZEN-only hardware settings such as `force-awake`,
-  non-LiPo battery thresholds, and GPIO status LEDs are intentionally not
-  copied to moNa2.
+  boundary. It uses ZEN's 1200 CPI curve: 0.5x base gain, acceleration from
+  normalized speed 32 through 160, and a 3.0x maximum gain. Scroll and Gesture
+  1 / Gesture 2 receive unaccelerated deltas through separate layer bypasses.
+  `force-awake` is enabled and the RUN-to-REST1 downshift is 3264 ms.
+- This physical unit keeps the PMW3610 sensor `invert-x` and `invert-y`
+  properties disabled. The listener applies one X-axis transform, matching the
+  effective orientation used before the customization while leaving the
+  layer-specific Scroll chain independent. The generated devicetree contract
+  verifies the pointer transform, two-axis Scroll reversal, and absence of
+  sensor inversion flags.
+- Both halves enter idle after 5 minutes and deep sleep after 30 minutes,
+  matching LisM. PM soft-off remains disabled. ZEN's smooth-scrolling mode and
+  4096-byte input thread stack are retained. ZEN-only non-LiPo battery
+  thresholds and GPIO status LEDs are intentionally not copied to moNa2.
+- The shared left/right key matrix is a deep-sleep wake source, so pressing any
+  matrix key wakes its own half. The first press may be consumed by boot and BLE
+  reconnection instead of being sent as a character.
 
 The PMW3610 dependency is an owned, commit-pinned fork that retains final motion
 samples and retries unsent non-blocking reports. ZMK, the RGB widget, and the
@@ -56,18 +73,24 @@ it is independent of DYA Studio and was already present on the original main.
 pinning `Mouse Layer-Tap` to one physical key. It also compares AML exclusions
 with the actual non-transparent Mouse-layer positions. After an internal right
 and left build, `scripts/verify-built-firmware.py` checks the generated
-devicetree and Kconfig for the accepted physical-unit axes, exactly nine
+devicetree and Kconfig for the accepted physical-unit axes, exactly ten
 layers, unchanged Bluetooth identity, and the intended split roles.
 
-Each normal Actions run publishes one downloadable `firmware` artifact
-containing exactly two side-specific files: `mona2-left-peripheral.uf2` and
-`mona2-right-central.uf2`. Flash the left image only to the left peripheral
-and the right image only to the right central; never use one image on both
-halves.
-Pairing reset is available only through an explicit manual-dispatch option and
-can no longer appear during a normal push. Automatic keymap-drawer commits are
-also disabled. The stock Bluetooth configuration and device name (`mona2`) are
-otherwise unchanged.
+Each Actions run publishes one downloadable `firmware` artifact containing
+exactly three files: `mona2-left-peripheral.uf2`,
+`mona2-right-central.uf2`, and
+`mona2-pairing-reset-use-only-when-needed.uf2`. Flash the left image only to
+the left peripheral and the right image only to the right central; never use
+one image on both halves. The reset image is included for recovery but must not
+be used during an ordinary update because it erases saved bonds. Automatic
+keymap-drawer commits are disabled. The stock Bluetooth configuration and
+device name (`mona2`) are otherwise unchanged.
+
+The right-central layer indicator uses only the pinned widget palette:
+0=off, 1=white, 2=green, 3=yellow, 4=magenta, 5=blue, 6=green,
+7=cyan, 8=red, and 9=yellow. Trackball activity temporarily activates Mouse layer 1,
+so the LED stays white for the 10-second AML timeout. This is a layer
+indicator, not an error condition.
 
 For the difference between an ordinary side-specific update and a full bond reset,
 see [`docs/PAIRING_RECOVERY.md`](docs/PAIRING_RECOVERY.md).

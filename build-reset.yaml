@@ -1,5 +1,0 @@
----
-include:
-  - board: seeeduino_xiao_ble
-    shield: settings_reset
-    artifact-name: mona2-pairing-reset-use-only-when-needed
