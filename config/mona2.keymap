@@ -161,7 +161,7 @@
 &trans  &kp LG(N0)              &kp LG(MINUS)      &kp LG(PLUS)             &trans                    &kp LG(C)  &kp LG(LA(C))       &kp UP_ARROW    &kp LG(V)            &kp LG(W)
 &trans  &kp K_MUTE              &kp C_VOLUME_DOWN  &kp C_VOLUME_UP          &trans            &trans  &kp LC(A)  &kp LEFT_ARROW      &kp DOWN_ARROW  &kp RIGHT_ARROW      &kp LC(E)
 &trans  &kp LA(LC(LEFT_ARROW))  &kp LA(LC(F))      &kp LA(LC(RIGHT_ARROW))  &trans  &trans    &trans  &kp HOME   &kp LG(LEFT_ARROW)  &kp LG(LA(P))   &kp LG(RIGHT_ARROW)  &kp END
-&trans  &trans                  &trans             &trans                   &trans  &trans    &trans  &trans                                                              &kp LG(LS(H))
+&trans  &trans                  &trans             &trans                   &trans  &trans    &trans  &kp LG(R)                                                           &kp LG(LS(H))
             >;
         };
 
