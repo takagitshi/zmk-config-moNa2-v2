@@ -65,6 +65,14 @@
             tap-ms = <20>;
         };
 
+        scroll_down_up: mouse_wheel_down_up {
+            compatible = "zmk,behavior-sensor-rotate";
+            #sensor-binding-cells = <0>;
+            bindings = <&msc SCRL_UP>, <&msc SCRL_DOWN>;
+
+            tap-ms = <20>;
+        };
+
         scroll_right_left: mouse_wheel_right_left {
             compatible = "zmk,behavior-sensor-rotate";
             #sensor-binding-cells = <0>;
@@ -152,7 +160,7 @@
 &trans   &trans   &trans  &trans  &trans   &trans    &trans        &kp COLON                                               &kp LA(Y)
             >;
 
-            sensor-bindings = <&scroll_up_down>;
+            sensor-bindings = <&scroll_down_up>;
         };
 
         layer_7 {
@@ -184,7 +192,7 @@
 &trans  &trans  &trans  &trans  &trans  &trans    &trans  &trans                          &trans
             >;
 
-            sensor-bindings = <&scroll_up_down>;
+            sensor-bindings = <&scroll_down_up>;
         };
     };
 };

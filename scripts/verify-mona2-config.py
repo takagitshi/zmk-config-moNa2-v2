@@ -37,6 +37,23 @@ def main() -> int:
     require('&zip_temp_layer 1 10000' in keymap and '&zip_temp_layer 1 10000' in right,
             "AML timeout path missing")
 
+    for label, bindings in (
+        ("scroll_up_down", "<&msc SCRL_DOWN>, <&msc SCRL_UP>"),
+        ("scroll_down_up", "<&msc SCRL_UP>, <&msc SCRL_DOWN>"),
+        ("scroll_right_left", "<&msc SCRL_LEFT>, <&msc SCRL_RIGHT>"),
+    ):
+        behavior = re.search(
+            rf"{label}:\s*[A-Za-z0-9_]+\s*\{{(?P<body>.*?)\n\s*\}};",
+            keymap,
+            re.DOTALL,
+        )
+        require(behavior is not None, f"encoder behavior {label} is missing")
+        body = behavior.group("body")
+        require('compatible = "zmk,behavior-sensor-rotate";' in body,
+                f"encoder behavior {label} is not a sensor-rotate behavior")
+        require(f"bindings = {bindings};" in body,
+                f"encoder behavior {label} direction changed")
+
     layer_ids = sorted(int(value) for value in re.findall(r"\blayer_(\d+)\s*\{", keymap))
     require(layer_ids == list(range(10)), f"keymap is not exactly ten layers: {layer_ids}")
 
@@ -95,6 +112,11 @@ def main() -> int:
             "existing Symbol/Number/Move layer-taps were not shifted with their roles")
     require('&mo 8' in layers[5],
             "Symbol-to-setting momentary binding was not shifted with setting")
+    require('sensor-bindings = <&scroll_right_left>;' in layers[5],
+            "horizontal encoder scroll direction changed")
+    for layer_id in (6, 9):
+        require('sensor-bindings = <&scroll_down_up>;' in layers[layer_id],
+                f"layer {layer_id} is not using the reversed vertical encoder behavior")
 
     for label, layer_id in (("gesture_processor", 3), ("gesture_2_processor", 4)):
         processor = re.search(
