@@ -54,6 +54,7 @@ def main() -> int:
         "pointer-acceleration-idle-reset-ms = < 0x3c >;",
         "pointer-acceleration-scroll-layer = < 0x2 >;",
         "pointer-acceleration-gesture-layer = < 0x3 >;",
+        "pointer-acceleration-gesture-layer-2 = < 0x4 >;",
     ):
         require(prop in sensor, f"generated pointer contract missing: {prop}")
     require("pointer-acceleration-precision-mode;" not in sensor,
@@ -62,8 +63,8 @@ def main() -> int:
         require(prop not in sensor,
                 f"generated physical-unit contract forbids sensor inversion: {prop}")
     require(
-        "input-processors=<&zip_xy_transform0x2>,<&gesture_processor>,"
-        "<&zip_temp_layer0x10x2710>;" in normalized_listener,
+        "input-processors=<&zip_xy_transform0x2>,<&gesture_2_processor>,"
+        "<&gesture_processor>,<&zip_temp_layer0x10x2710>;" in normalized_listener,
         "generated Pointer/Gesture/AML processor order changed",
     )
     require(
@@ -75,8 +76,19 @@ def main() -> int:
     require("process-next;" in normalized_listener,
             "generated Scroll chain no longer continues to HID")
 
+    for label, layer_id in (("gesture_processor", "0x3"),
+                            ("gesture_2_processor", "0x4")):
+        processor = re.sub(r"\s+", "", node_body(right_dts, label))
+        for prop in (
+            f"layer=<{layer_id}>;", f"binding-layer=<{layer_id}>;",
+            "up-position=<0x7>;", "left-position=<0x11>;",
+            "right-position=<0x13>;", "down-position=<0x1e>;",
+            "threshold=<0xc8>;", "cooldown-ms=<0x96>;",
+        ):
+            require(prop in processor, f"generated {label} contract missing: {prop}")
+
     layers = sorted({int(value) for value in re.findall(r"\blayer_(\d+)\s*\{", right_dts)})
-    require(layers == list(range(9)), f"generated keymap is not exactly nine layers: {layers}")
+    require(layers == list(range(10)), f"generated keymap is not exactly ten layers: {layers}")
 
     for symbol in (
         "CONFIG_ZMK_BLE",
@@ -96,10 +108,10 @@ def main() -> int:
             "right-central PMW3610 aggregation interval changed")
     require('CONFIG_PMW3610_RUN_DOWNSHIFT_TIME_MS=3264' in right_config,
             "right-central PMW3610 run-to-rest downshift changed")
-    require('CONFIG_RGBLED_WIDGET_LAYER_1_COLOR=7' in right_config,
-            "right-central Mouse / AML layer is not white")
-    require('CONFIG_RGBLED_WIDGET_LAYER_7_COLOR=1' in right_config,
-            "right-central setting layer is not red")
+    expected_layer_colors = [0, 7, 2, 3, 5, 4, 2, 6, 1, 3]
+    for layer_id, color in enumerate(expected_layer_colors):
+        require(f'CONFIG_RGBLED_WIDGET_LAYER_{layer_id}_COLOR={color}' in right_config,
+                f"generated layer {layer_id} LED color is not palette value {color}")
     require(not enabled(right_config, "CONFIG_ZMK_SETTINGS_RESET_ON_START"),
             "right-central normal firmware would erase settings on boot")
 

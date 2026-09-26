@@ -11,13 +11,15 @@ and `zmk-rgbled-widget` layer/battery LED behavior.
 The only editable layout source is the Keymap Editor-compatible
 `config/mona2.keymap`. The shield's bundled keymap is only a fallback and is
 not compared with the editable file, so a normal Keymap Editor commit cannot
-be rejected merely because the fallback did not change. The nine layers are
-Base, Mouse/AML, Scroll, Gesture, symbol, number, move, setting, and User 8.
+be rejected merely because the fallback did not change. The ten layers are
+Base, Mouse/AML, Scroll, Gesture 1, Gesture 2, symbol, number, move, setting,
+and User 9.
 Keys without a safe physical equivalent remain transparent so they can be
 adjusted later in Keymap Editor.
 
-The repository default `main` and Keymap Editor both use this nine-layer
-layout. Risky pointer-direction corrections remain on a Draft PR until the
+This Draft branch and Keymap Editor both use this ten-layer layout. It does
+not replace the repository default `main` until the physical checks pass.
+Risky pointer-direction corrections remain on a Draft PR until the
 physical four-direction, reconnect, sleep/resume, Scroll, and Gesture checks
 pass; the Draft branch does not replace the editable `main` keymap meanwhile.
 
@@ -25,6 +27,9 @@ Mouse/pointing behavior:
 
 - Auto Mouse Layer selects Layer 1 after pointer motion, waits for 300 ms of
   keyboard idle, and times out after 10 seconds. Mouse clicks refresh the timer.
+- AML exclusions are derived from every non-transparent/non-none Mouse-layer
+  binding. The current seven positions are 17/18/19/20/21/34/35, including the
+  explicit minus key at the same physical position as Base `-`.
 - `Mouse Layer-Tap` uses `&mouse_lt <layer> <MB1..MB5>` so both parameters remain
   editable in Keymap Editor.
 - Layer 2 converts the trackball to scroll. Both vertical and horizontal
@@ -32,12 +37,17 @@ Mouse/pointing behavior:
   using cascaded `1/10` and `1/6` scalers for an effective `1/60` scale. Each
   scaler stays within ZMK's recommended parameter limit and retains remainders
   for low-speed motion.
-- Layer 3 recognizes four gestures through the editable I/J/L/comma bindings.
+- Layer 3 (Gesture 1) recognizes four gestures through the editable
+  I/J/L/comma bindings. Layer 4 (Gesture 2) uses the same physical slots and
+  reads their normal keymap bindings, so Keymap Editor can change each action.
+  Its initial actions are Command+T (up), Control+Shift+Tab (left), Control+Tab
+  (right), and Command+Shift+N (down). On Mouse layer, the added left Command
+  key taps Command and holds Gesture 2.
 - Pointer acceleration is implemented at the PMW3610 15 ms X/Y aggregation
   boundary. It uses ZEN's 1200 CPI curve: 0.5x base gain, acceleration from
   normalized speed 32 through 160, and a 3.0x maximum gain. Scroll and Gesture
-  receive unaccelerated deltas. `force-awake` is enabled and the RUN-to-REST1
-  downshift is 3264 ms.
+  1 / Gesture 2 receive unaccelerated deltas through separate layer bypasses.
+  `force-awake` is enabled and the RUN-to-REST1 downshift is 3264 ms.
 - This physical unit keeps the PMW3610 sensor `invert-x` and `invert-y`
   properties disabled. The listener applies one X-axis transform, matching the
   effective orientation used before the customization while leaving the
@@ -63,7 +73,7 @@ it is independent of DYA Studio and was already present on the original main.
 pinning `Mouse Layer-Tap` to one physical key. It also compares AML exclusions
 with the actual non-transparent Mouse-layer positions. After an internal right
 and left build, `scripts/verify-built-firmware.py` checks the generated
-devicetree and Kconfig for the accepted physical-unit axes, exactly nine
+devicetree and Kconfig for the accepted physical-unit axes, exactly ten
 layers, unchanged Bluetooth identity, and the intended split roles.
 
 Each Actions run publishes one downloadable `firmware` artifact containing
@@ -76,11 +86,11 @@ be used during an ordinary update because it erases saved bonds. Automatic
 keymap-drawer commits are disabled. The stock Bluetooth configuration and
 device name (`mona2`) are otherwise unchanged.
 
-The right-central layer indicator uses white for Mouse / AML layer 1 and red
-for setting layer 7. Trackball activity temporarily activates Mouse layer 1,
+The right-central layer indicator uses only the pinned widget palette:
+0=off, 1=white, 2=green, 3=yellow, 4=magenta, 5=blue, 6=green,
+7=cyan, 8=red, and 9=yellow. Trackball activity temporarily activates Mouse layer 1,
 so the LED stays white for the 10-second AML timeout. This is a layer
-indicator, not an error condition. Other layer colors retain the widget
-defaults.
+indicator, not an error condition.
 
 For the difference between an ordinary side-specific update and a full bond reset,
 see [`docs/PAIRING_RECOVERY.md`](docs/PAIRING_RECOVERY.md).

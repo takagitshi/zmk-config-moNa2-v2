@@ -112,6 +112,21 @@
         reset-on-layer = <2>;
     };
 
+    gesture_2_processor: gesture_2_processor {
+        compatible = "zmk,input-processor-gesture";
+        #input-processor-cells = <0>;
+        status = "disabled";
+        layer = <4>;
+        binding-layer = <4>;
+        up-position = <7>;
+        left-position = <17>;
+        right-position = <19>;
+        down-position = <30>;
+        threshold = <200>;
+        cooldown-ms = <150>;
+        reset-on-layer = <2>;
+    };
+
     left_encoder: encoder_left {
         compatible = "alps,ec11";
         a-gpios = <&xiao_d 5 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>;
