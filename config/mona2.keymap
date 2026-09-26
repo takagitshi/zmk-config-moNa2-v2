@@ -80,10 +80,10 @@
         layer_0 {
             display-name = "Base";
             bindings = <
-&kp Q             &kp W         &kp E             &kp R                 &kp T                                               &kp Y          &kp U  &lt 3 I    &kp O    &kp P
-&kp A             &kp S         &kp D             &kp F                 &kp G                            &kp ESCAPE         &kp H          &kp J  &lt 2 K    &kp L    &kp MINUS
-&mt LEFT_SHIFT Z  &kp X         &kp C             &kp V                 &kp B             &kp DELETE     &kp RIGHT_COMMAND  &kp N          &kp M  &kp COMMA  &kp DOT  &mt RIGHT_SHIFT QUESTION
-&kp TAB           &kp LEFT_ALT  &kp LEFT_COMMAND  &mt LCTRL LANGUAGE_2  &lt 5 LANGUAGE_1  &lt 6 SPACE    &lt 7 ENTER        &kp BACKSPACE                             &kp SEMICOLON
+&kp Q             &kp W         &kp E             &kp R                 &kp T                                               &kp Y          &kp U  &lt 3 I      &kp O    &kp P
+&kp A             &kp S         &kp D             &kp F                 &kp G                            &kp ESCAPE         &kp H          &kp J  &lt 2 K      &kp L    &kp MINUS
+&mt LEFT_SHIFT Z  &kp X         &kp C             &kp V                 &kp B             &kp DELETE     &kp RIGHT_COMMAND  &kp N          &kp M  &lt 4 COMMA  &kp DOT  &mt RIGHT_SHIFT QUESTION
+&kp TAB           &kp LEFT_ALT  &kp LEFT_COMMAND  &mt LCTRL LANGUAGE_2  &lt 5 LANGUAGE_1  &lt 6 SPACE    &lt 7 ENTER        &kp BACKSPACE                               &kp SEMICOLON
             >;
 
             sensor-bindings = <&inc_dec_kp C_VOLUME_UP C_VOLUME_DOWN>;
@@ -93,9 +93,9 @@
             display-name = "Mouse";
             bindings = <
 &trans          &trans        &trans            &trans  &trans                    &trans  &trans    &trans           &trans    &trans
-&trans          &trans        &trans            &trans  &trans            &trans  &trans  &mkp MB1  &mouse_lt 2 MB3  &mkp MB2  &kp MINUS
+&trans          &trans        &trans            &trans  &trans            &trans  &trans  &mkp MB1  &mouse_lt 2 MB3  &mkp MB2  &kp RIGHT_COMMAND
 &kp LEFT_SHIFT  &trans        &trans            &trans  &trans  &trans    &trans  &trans  &trans    &trans           &trans    &trans
-&trans          &kp LEFT_ALT  &lt 4 LEFT_COMMAND  &trans  &trans  &trans    &trans  &trans                                       &trans
+&trans          &kp LEFT_ALT  &kp LEFT_COMMAND  &trans  &trans  &trans    &trans  &trans                                       &trans
             >;
 
             sensor-bindings = <&inc_dec_kp C_VOLUME_UP C_VOLUME_DOWN>;
@@ -124,10 +124,10 @@
         layer_4 {
             display-name = "Gesture 2";
             bindings = <
-&trans  &trans  &trans  &trans  &trans                    &trans  &trans              &kp LG(T)          &trans       &trans
-&trans  &trans  &trans  &trans  &trans            &trans  &trans  &kp LC(LS(TAB))  &trans       &kp LC(TAB)  &trans
-&trans  &trans  &trans  &trans  &trans  &trans    &trans  &trans  &trans              &kp LG(LS(N))  &trans       &trans
-&trans  &trans  &trans  &trans  &trans  &trans    &trans  &trans                                                       &trans
+&trans  &trans  &trans  &trans  &trans                    &trans  &trans           &kp LG(T)      &trans       &trans
+&trans  &trans  &trans  &trans  &trans            &trans  &trans  &kp LC(LS(TAB))  &trans         &kp LC(TAB)  &trans
+&trans  &trans  &trans  &trans  &trans  &trans    &trans  &trans  &trans           &kp LG(LS(N))  &trans       &trans
+&trans  &trans  &trans  &trans  &trans  &trans    &trans  &trans                                               &trans
             >;
         };
 
@@ -158,10 +158,10 @@
         layer_7 {
             display-name = "move";
             bindings = <
-&trans  &kp LG(N0)              &kp LG(MINUS)      &kp LG(PLUS)             &trans                           &kp LG(T)  &kp LC(LS(TAB))     &kp UP_ARROW    &kp LC(TAB)          &kp LG(W)
-&trans  &kp K_MUTE              &kp C_VOLUME_DOWN  &kp C_VOLUME_UP          &trans            &kp LG(LS(N))  &kp LC(A)  &kp LEFT_ARROW      &kp DOWN_ARROW  &kp RIGHT_ARROW      &kp LC(E)
-&trans  &kp LA(LC(LEFT_ARROW))  &kp LA(LC(F))      &kp LA(LC(RIGHT_ARROW))  &trans  &trans    &kp LG(R)      &kp HOME   &kp LG(LEFT_ARROW)  &kp LG(LA(P))   &kp LG(RIGHT_ARROW)  &kp END
-&trans  &trans                  &trans             &trans                   &trans  &trans    &trans         &trans                                                              &kp LG(LS(H))
+&trans  &kp LG(N0)              &kp LG(MINUS)      &kp LG(PLUS)             &trans                    &kp LG(C)  &kp LG(LA(C))       &kp UP_ARROW    &kp LG(V)            &kp LG(W)
+&trans  &kp K_MUTE              &kp C_VOLUME_DOWN  &kp C_VOLUME_UP          &trans            &trans  &kp LC(A)  &kp LEFT_ARROW      &kp DOWN_ARROW  &kp RIGHT_ARROW      &kp LC(E)
+&trans  &kp LA(LC(LEFT_ARROW))  &kp LA(LC(F))      &kp LA(LC(RIGHT_ARROW))  &trans  &trans    &trans  &kp HOME   &kp LG(LEFT_ARROW)  &kp LG(LA(P))   &kp LG(RIGHT_ARROW)  &kp END
+&trans  &trans                  &trans             &trans                   &trans  &trans    &trans  &trans                                                              &kp LG(LS(H))
             >;
         };
 
@@ -186,6 +186,5 @@
 
             sensor-bindings = <&scroll_up_down>;
         };
-
     };
 };
