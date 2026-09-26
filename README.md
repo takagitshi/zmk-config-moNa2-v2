@@ -17,11 +17,10 @@ and User 9.
 Keys without a safe physical equivalent remain transparent so they can be
 adjusted later in Keymap Editor.
 
-This Draft branch and Keymap Editor both use this ten-layer layout. It does
-not replace the repository default `main` until the physical checks pass.
-Risky pointer-direction corrections remain on a Draft PR until the
-physical four-direction, reconnect, sleep/resume, Scroll, and Gesture checks
-pass; the Draft branch does not replace the editable `main` keymap meanwhile.
+The repository default `main` and Keymap Editor both use this ten-layer layout.
+It was merged before the physical checks so Keymap Editor could edit all ten
+layers. The four-direction, reconnect, sleep/resume, Scroll, Gesture, LED, and
+AML checks therefore remain required on the physical keyboard.
 
 Mouse/pointing behavior:
 
@@ -29,7 +28,7 @@ Mouse/pointing behavior:
   keyboard idle, and times out after 10 seconds. Mouse clicks refresh the timer.
 - AML exclusions are derived from every non-transparent/non-none Mouse-layer
   binding. The current seven positions are 17/18/19/20/21/34/35, including the
-  explicit minus key at the same physical position as Base `-`.
+  right Command key at the same physical position as Base `-`.
 - `Mouse Layer-Tap` uses `&mouse_lt <layer> <MB1..MB5>` so both parameters remain
   editable in Keymap Editor.
 - Layer 2 converts the trackball to scroll. Both vertical and horizontal
@@ -41,8 +40,8 @@ Mouse/pointing behavior:
   I/J/L/comma bindings. Layer 4 (Gesture 2) uses the same physical slots and
   reads their normal keymap bindings, so Keymap Editor can change each action.
   Its initial actions are Command+T (up), Control+Shift+Tab (left), Control+Tab
-  (right), and Command+Shift+N (down). On Mouse layer, the added left Command
-  key taps Command and holds Gesture 2.
+  (right), and Command+Shift+N (down). Base comma taps comma and holds Gesture 2;
+  the Mouse-layer left Command key is a normal Command key.
 - Pointer acceleration is implemented at the PMW3610 15 ms X/Y aggregation
   boundary. It uses ZEN's 1200 CPI curve: 0.5x base gain, acceleration from
   normalized speed 32 through 160, and a 3.0x maximum gain. Scroll and Gesture

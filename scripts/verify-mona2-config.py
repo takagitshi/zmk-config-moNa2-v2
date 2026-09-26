@@ -75,8 +75,11 @@ def main() -> int:
         f"AML exclusions {excluded_positions} do not match Mouse layer positions "
         f"{configured_mouse_positions}",
     )
-    require('&lt 4 LEFT_COMMAND' in layers[1],
-            "Mouse-layer Command key must retain tap Command / hold Gesture 2 access")
+    gesture_2_access = layers[0] + layers[1]
+    require(
+        re.search(r"&(?:lt|mo)\s+4\b", gesture_2_access) is not None,
+        "Gesture 2 must remain reachable from the Base or Mouse layer",
+    )
 
     gesture_2_bindings = re.search(r"bindings\s*=\s*<(?P<body>.*?)>;", layers[4], re.DOTALL)
     require(gesture_2_bindings is not None, "Gesture 2 bindings are missing")
