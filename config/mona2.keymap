@@ -155,9 +155,9 @@
             display-name = "number";
             bindings = <
 &kp F1   &kp F2   &kp F3  &kp F4  &kp F5                           &kp NUMBER_7  &kp NUMBER_8  &kp NUMBER_9  &kp PLUS      &kp MINUS
-&kp F6   &kp F7   &kp F8  &kp F9  &kp F10            &kp PERIOD    &kp NUMBER_4  &kp NUMBER_5  &kp NUMBER_6  &kp ASTERISK  &kp SLASH
+&kp F6   &kp F7   &kp F8  &kp F9  &kp F10            &kp COLON     &kp NUMBER_4  &kp NUMBER_5  &kp NUMBER_6  &kp ASTERISK  &kp SLASH
 &kp F11  &kp F12  &trans  &trans  &trans   &trans    &kt NUMBER_0  &kp N1        &kp N2        &kp N3        &kp COMMA     &kp EQUAL
-&trans   &trans   &trans  &trans  &trans   &trans    &trans        &kp COLON                                               &kp LA(Y)
+&trans   &trans   &trans  &trans  &trans   &trans    &trans        &kp PERIOD                                              &kp LA(Y)
             >;
 
             sensor-bindings = <&scroll_down_up>;
