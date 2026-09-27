@@ -46,9 +46,13 @@ def main() -> int:
         "pointer-acceleration;",
         "force-awake;",
         "cpi = < 0x4b0 >;",
-        "pointer-acceleration-base-gain-milli = < 0x1f4 >;",
-        "pointer-acceleration-takeoff-speed = < 0x20 >;",
-        "pointer-acceleration-full-speed = < 0xa0 >;",
+        "pointer-acceleration-base-gain-milli = < 0x3e8 >;",
+        "pointer-acceleration-precision-mode;",
+        "pointer-acceleration-precision-gain-milli = < 0x292 >;",
+        "pointer-acceleration-precision-speed = < 0xf >;",
+        "pointer-acceleration-precision-full-speed = < 0x1f >;",
+        "pointer-acceleration-takeoff-speed = < 0x25 >;",
+        "pointer-acceleration-full-speed = < 0xbd >;",
         "pointer-acceleration-max-gain-milli = < 0xbb8 >;",
         "pointer-acceleration-reference-interval-ms = < 0xf >;",
         "pointer-acceleration-idle-reset-ms = < 0x3c >;",
@@ -57,8 +61,6 @@ def main() -> int:
         "pointer-acceleration-gesture-layer-2 = < 0x4 >;",
     ):
         require(prop in sensor, f"generated pointer contract missing: {prop}")
-    require("pointer-acceleration-precision-mode;" not in sensor,
-            "generated sensor unexpectedly retains precision mode")
     for prop in ("invert-x;", "invert-y;"):
         require(prop not in sensor,
                 f"generated physical-unit contract forbids sensor inversion: {prop}")

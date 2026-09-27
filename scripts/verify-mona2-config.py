@@ -160,9 +160,13 @@ def main() -> int:
 
     for fragment in (
         'cpi = <1200>;', 'pointer-acceleration;',
-        'pointer-acceleration-base-gain-milli = <500>;',
-        'pointer-acceleration-takeoff-speed = <32>;',
-        'pointer-acceleration-full-speed = <160>;',
+        'pointer-acceleration-base-gain-milli = <1000>;',
+        'pointer-acceleration-precision-mode;',
+        'pointer-acceleration-precision-gain-milli = <658>;',
+        'pointer-acceleration-precision-speed = <15>;',
+        'pointer-acceleration-precision-full-speed = <31>;',
+        'pointer-acceleration-takeoff-speed = <37>;',
+        'pointer-acceleration-full-speed = <189>;',
         'pointer-acceleration-max-gain-milli = <3000>;',
         'pointer-acceleration-reference-interval-ms = <15>;',
         'pointer-acceleration-idle-reset-ms = <60>;',
@@ -182,8 +186,6 @@ def main() -> int:
     )
     require(sensor_block is not None, "trackball sensor node missing")
     sensor_body = sensor_block.group("body")
-    require('pointer-acceleration-precision-mode;' not in sensor_body,
-            "ZEN pointer contract forbids moNa2-only precision mode")
     require(re.search(r"^\s*invert-x;", sensor_body, re.MULTILINE) is None,
             "physical-unit contract forbids active sensor X inversion")
     require(re.search(r"^\s*invert-y;", sensor_body, re.MULTILINE) is None,
@@ -283,8 +285,8 @@ def main() -> int:
 
     revisions = re.findall(r"revision:\s*([0-9a-f]{40})", west)
     require(len(revisions) == 4, f"expected four pinned dependencies, found {len(revisions)}")
-    require('revision: 1c6499b3622f849fd556e585870dfed4696d2edd' in west,
-            "dual-Gesture PMW3610 driver commit is not pinned")
+    require('revision: 15291d5dc8960ac1f54b101ef25fd652c716e205' in west,
+            "precision-stage PMW3610 driver commit is not pinned")
     for forbidden in ("cormoran", "custom-settings", "runtime-input-processor"):
         require(forbidden not in west, f"DYA-only dependency present: {forbidden}")
 

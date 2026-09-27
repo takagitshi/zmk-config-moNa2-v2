@@ -54,9 +54,14 @@
         irq-gpios = <&gpio0 2 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>; //P0.02を指定(MOTION)
         cpi = <1200>;
         pointer-acceleration;
-        pointer-acceleration-base-gain-milli = <500>;
-        pointer-acceleration-takeoff-speed = <32>;
-        pointer-acceleration-full-speed = <160>;
+        pointer-acceleration-base-gain-milli = <1000>;
+        pointer-acceleration-precision-mode;
+        pointer-acceleration-precision-gain-milli = <658>;
+        // LisM's 1216 CPI / 8 ms thresholds scaled to 1200 CPI / 15 ms.
+        pointer-acceleration-precision-speed = <15>;
+        pointer-acceleration-precision-full-speed = <31>;
+        pointer-acceleration-takeoff-speed = <37>;
+        pointer-acceleration-full-speed = <189>;
         pointer-acceleration-max-gain-milli = <3000>;
         pointer-acceleration-reference-interval-ms = <15>;
         pointer-acceleration-idle-reset-ms = <60>;
