@@ -69,8 +69,12 @@ The stock DYA branches are not used. Standard ZMK Studio remains enabled because
 it is independent of DYA Studio and was already present on the original main.
 
 `scripts/verify-mona2-config.py` checks the editable source contracts without
-pinning `Mouse Layer-Tap` to one physical key. It also compares AML exclusions
-with the actual non-transparent Mouse-layer positions. After an internal right
+pinning Keymap Editor-owned tap actions, mouse-button values, or physical
+positions. It verifies safe hold/momentary reachability for the customized layers and
+compares AML exclusions with the actual non-transparent Mouse-layer positions;
+that AML check remains strict because an unmatched position changes runtime
+layer-deactivation behavior. A regression test applies representative Editor
+changes while retaining these structural contracts. After an internal right
 and left build, `scripts/verify-built-firmware.py` checks the generated
 devicetree and Kconfig for the accepted physical-unit axes, exactly ten
 layers, unchanged Bluetooth identity, and the intended split roles.

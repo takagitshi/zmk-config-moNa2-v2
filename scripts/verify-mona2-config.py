@@ -27,12 +27,8 @@ def main() -> int:
     builds = read("build.yaml")
     workflow = read(".github/workflows/build.yml")
 
-    names = re.findall(r'display-name\s*=\s*"([^"]+)";', keymap)
-    require(
-        names == ["Mouse Layer-Tap", "Base", "Mouse", "Scroll", "Gesture 1",
-                  "Gesture 2", "symbol", "number", "move", "setting", "User 9"],
-        f"unexpected behavior/layer display names: {names}",
-    )
+    require('display-name = "Mouse Layer-Tap";' in keymap,
+            "Mouse Layer-Tap display name is missing")
     require('bindings = <&mo>, <&mkp>;' in keymap, "Mouse Layer-Tap contract missing")
     require('&zip_temp_layer 1 10000' in keymap and '&zip_temp_layer 1 10000' in right,
             "AML timeout path missing")
@@ -67,18 +63,27 @@ def main() -> int:
         require(layer is not None, f"missing layer {layer_id}")
         layers[layer_id] = layer.group("body")
 
-    mouse_bindings = re.search(r"bindings\s*=\s*<(?P<body>.*?)>;", layers[1], re.DOTALL)
-    require(mouse_bindings is not None, "Mouse layer bindings are missing")
-    mouse_binding_text = mouse_bindings.group("body")
-    for mouse_button in ("MB1", "MB2", "MB3"):
-        require(
-            re.search(
-                rf"&(?:mkp\s+{mouse_button}|mouse_lt\s+\d+\s+{mouse_button})\b",
-                mouse_binding_text,
-            ) is not None,
-            f"Mouse layer is missing {mouse_button}",
-        )
-    mouse_behaviors = re.findall(r"&([A-Za-z0-9_]+)\b", mouse_binding_text)
+    layer_names = []
+    for layer_id, layer in layers.items():
+        display_name = re.search(r'display-name\s*=\s*"([^"]+)";', layer)
+        require(display_name is not None, f"layer {layer_id} display name is missing")
+        layer_names.append(display_name.group(1))
+    require(
+        layer_names == ["Base", "Mouse", "Scroll", "Gesture 1", "Gesture 2",
+                        "symbol", "number", "move", "setting", "User 9"],
+        f"unexpected layer display names: {layer_names}",
+    )
+
+    layer_bindings = {}
+    for layer_id, layer in layers.items():
+        bindings = re.search(r"bindings\s*=\s*<(?P<body>.*?)>;", layer, re.DOTALL)
+        require(bindings is not None, f"layer {layer_id} bindings are missing")
+        layer_bindings[layer_id] = bindings.group("body")
+        behaviors = re.findall(r"&([A-Za-z0-9_]+)\b", layer_bindings[layer_id])
+        require(len(behaviors) == 42,
+                f"layer {layer_id} must retain all 42 editable key slots: {len(behaviors)}")
+
+    mouse_behaviors = re.findall(r"&([A-Za-z0-9_]+)\b", layer_bindings[1])
     configured_mouse_positions = [
         position
         for position, behavior in enumerate(mouse_behaviors)
@@ -92,26 +97,36 @@ def main() -> int:
         f"AML exclusions {excluded_positions} do not match Mouse layer positions "
         f"{configured_mouse_positions}",
     )
-    gesture_2_access = layers[0] + layers[1]
+    # Keymap Editor owns the binding values and their physical positions. Protect
+    # only the semantic layer graph: every customized functional layer must remain
+    # reachable from Base or the pointer-activated Mouse layer. In particular, do
+    # not pin the tap side of &lt (the cause of the bfe37ae false failure).
+    layer_access_pattern = re.compile(r"&(?:lt|mo|mouse_lt)\s+(\d+)\b")
+    layer_references = {
+        layer_id: {int(value) for value in layer_access_pattern.findall(bindings)}
+        for layer_id, bindings in layer_bindings.items()
+    }
     require(
-        re.search(r"&(?:lt|mo)\s+4\b", gesture_2_access) is not None,
-        "Gesture 2 must remain reachable from the Base or Mouse layer",
+        all(target in layers for references in layer_references.values() for target in references),
+        f"keymap references a missing layer: {layer_references}",
+    )
+    reachable_layers = {0, 1}
+    pending_layers = [0, 1]
+    while pending_layers:
+        source = pending_layers.pop()
+        for target in layer_references[source] - reachable_layers:
+            reachable_layers.add(target)
+            pending_layers.append(target)
+    require(
+        set(range(2, 9)) <= reachable_layers,
+        f"customized layers 2 through 8 must remain reachable: {sorted(reachable_layers)}",
     )
 
-    gesture_2_bindings = re.search(r"bindings\s*=\s*<(?P<body>.*?)>;", layers[4], re.DOTALL)
-    require(gesture_2_bindings is not None, "Gesture 2 bindings are missing")
-    gesture_2_behaviors = re.findall(r"&([A-Za-z0-9_]+)\b", gesture_2_bindings.group("body"))
-    require(len(gesture_2_behaviors) == 42,
-            f"Gesture 2 must retain all 42 editable key slots: {len(gesture_2_behaviors)}")
+    gesture_2_behaviors = re.findall(r"&([A-Za-z0-9_]+)\b", layer_bindings[4])
     for position in (7, 17, 19, 30):
         require(gesture_2_behaviors[position] not in {"trans", "none"},
                 f"Gesture 2 editable action slot {position} is empty")
 
-    require('&lt 5 LANGUAGE_1' in layers[0] and '&lt 6 SPACE' in layers[0]
-            and '&lt 7 ENTER' in layers[0],
-            "existing Symbol/Number/Move layer-taps were not shifted with their roles")
-    require('&mo 8' in layers[5],
-            "Symbol-to-setting momentary binding was not shifted with setting")
     require('sensor-bindings = <&scroll_right_left>;' in layers[5],
             "horizontal encoder scroll direction changed")
     for layer_id in (6, 9):
