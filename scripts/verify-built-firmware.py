@@ -48,7 +48,7 @@ def main() -> int:
         "cpi = < 0x4b0 >;",
         "pointer-acceleration-base-gain-milli = < 0x3e8 >;",
         "pointer-acceleration-precision-mode;",
-        "pointer-acceleration-precision-gain-milli = < 0x292 >;",
+        "pointer-acceleration-precision-gain-milli = < 0x1f4 >;",
         "pointer-acceleration-precision-speed = < 0xf >;",
         "pointer-acceleration-precision-full-speed = < 0x1f >;",
         "pointer-acceleration-takeoff-speed = < 0x25 >;",

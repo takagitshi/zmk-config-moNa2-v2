@@ -56,7 +56,7 @@
         pointer-acceleration;
         pointer-acceleration-base-gain-milli = <1000>;
         pointer-acceleration-precision-mode;
-        pointer-acceleration-precision-gain-milli = <658>;
+        pointer-acceleration-precision-gain-milli = <500>;
         // LisM's 1216 CPI / 8 ms thresholds scaled to 1200 CPI / 15 ms.
         pointer-acceleration-precision-speed = <15>;
         pointer-acceleration-precision-full-speed = <31>;

@@ -162,7 +162,7 @@ def main() -> int:
         'cpi = <1200>;', 'pointer-acceleration;',
         'pointer-acceleration-base-gain-milli = <1000>;',
         'pointer-acceleration-precision-mode;',
-        'pointer-acceleration-precision-gain-milli = <658>;',
+        'pointer-acceleration-precision-gain-milli = <500>;',
         'pointer-acceleration-precision-speed = <15>;',
         'pointer-acceleration-precision-full-speed = <31>;',
         'pointer-acceleration-takeoff-speed = <37>;',
