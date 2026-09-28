@@ -57,12 +57,13 @@
         pointer-acceleration-base-gain-milli = <1000>;
         pointer-acceleration-precision-mode;
         pointer-acceleration-precision-gain-milli = <333>;
-        // LisM's 1216 CPI / 8 ms thresholds scaled to 1200 CPI / 15 ms.
+        // LisM's thresholds scaled to 1200 CPI / 15 ms, with a gentler
+        // precision return that reaches 1.0x at normal acceleration takeoff.
         pointer-acceleration-precision-speed = <15>;
-        pointer-acceleration-precision-full-speed = <31>;
+        pointer-acceleration-precision-full-speed = <37>;
         pointer-acceleration-takeoff-speed = <37>;
         pointer-acceleration-full-speed = <189>;
-        pointer-acceleration-max-gain-milli = <2500>;
+        pointer-acceleration-max-gain-milli = <2000>;
         pointer-acceleration-reference-interval-ms = <15>;
         pointer-acceleration-idle-reset-ms = <60>;
         pointer-acceleration-scroll-layer = <2>;
