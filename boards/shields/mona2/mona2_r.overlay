@@ -57,13 +57,13 @@
         pointer-acceleration-base-gain-milli = <1000>;
         pointer-acceleration-precision-mode;
         pointer-acceleration-precision-gain-milli = <333>;
-        // LisM's thresholds scaled to 1200 CPI / 15 ms, with a gentler
-        // precision return that reaches 1.0x at normal acceleration takeoff.
+        // Keep low-speed precision for longer on moNa2's 25 mm ball, then use
+        // a delayed, gentler normal acceleration curve capped at 1.5x.
         pointer-acceleration-precision-speed = <15>;
-        pointer-acceleration-precision-full-speed = <37>;
-        pointer-acceleration-takeoff-speed = <37>;
-        pointer-acceleration-full-speed = <189>;
-        pointer-acceleration-max-gain-milli = <2000>;
+        pointer-acceleration-precision-full-speed = <45>;
+        pointer-acceleration-takeoff-speed = <45>;
+        pointer-acceleration-full-speed = <240>;
+        pointer-acceleration-max-gain-milli = <1500>;
         pointer-acceleration-reference-interval-ms = <15>;
         pointer-acceleration-idle-reset-ms = <60>;
         pointer-acceleration-scroll-layer = <2>;
