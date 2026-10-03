@@ -43,10 +43,14 @@ Mouse/pointing behavior:
   (right), and Command+Shift+N (down). Base comma taps comma and holds Gesture 2;
   the Mouse-layer left Command key is a normal Command key.
 - Pointer acceleration is implemented at the PMW3610 15 ms X/Y aggregation
-  boundary. It keeps 1200 CPI and uses 0.333x (about 400 CPI equivalent)
-  through normalized speed 15 for the 25 mm ball, then makes a longer smooth
-  return to 1.0x at 45. Normal acceleration starts from that same point and
-  continues through 240 with a 1.5x maximum gain. Scroll and Gesture
+  boundary. It keeps 1200 CPI and uses 0.280x (336 CPI equivalent)
+  through normalized speed 15 for the 25 mm ball, then smoothly returns to
+  1.0x at 60. Normal acceleration starts from that same point, with its
+  slope transition ending at 260 and the maximum gain setting kept at 1.5x.
+  The integrated curve approaches that cap at higher speeds; 260 is not the
+  speed at which the output/input ratio reaches 1.5x. Compared with the prior
+  0.333x / 45 / 240 curve, initial motion is about 16% slower and both
+  transitions are gentler. Scroll and Gesture
   1 / Gesture 2 receive unaccelerated deltas through separate layer bypasses.
   `force-awake` is enabled and the RUN-to-REST1 downshift is 3264 ms.
 - This physical unit keeps the PMW3610 sensor `invert-x` and `invert-y`

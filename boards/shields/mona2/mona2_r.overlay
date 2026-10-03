@@ -56,13 +56,13 @@
         pointer-acceleration;
         pointer-acceleration-base-gain-milli = <1000>;
         pointer-acceleration-precision-mode;
-        pointer-acceleration-precision-gain-milli = <333>;
-        // Keep low-speed precision for longer on moNa2's 25 mm ball, then use
-        // a delayed, gentler normal acceleration curve capped at 1.5x.
+        pointer-acceleration-precision-gain-milli = <280>;
+        // Slow initial motion to 336 CPI equivalent on moNa2's 25 mm ball,
+        // then stretch both transitions while retaining the 1.5x gain cap.
         pointer-acceleration-precision-speed = <15>;
-        pointer-acceleration-precision-full-speed = <45>;
-        pointer-acceleration-takeoff-speed = <45>;
-        pointer-acceleration-full-speed = <240>;
+        pointer-acceleration-precision-full-speed = <60>;
+        pointer-acceleration-takeoff-speed = <60>;
+        pointer-acceleration-full-speed = <260>;
         pointer-acceleration-max-gain-milli = <1500>;
         pointer-acceleration-reference-interval-ms = <15>;
         pointer-acceleration-idle-reset-ms = <60>;
