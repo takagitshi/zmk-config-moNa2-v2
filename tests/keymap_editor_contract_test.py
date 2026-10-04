@@ -6,6 +6,9 @@ from pathlib import Path
 import re
 import shutil
 import tempfile
+import sys
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 
 
 ROOT = Path(__file__).resolve().parents[1]

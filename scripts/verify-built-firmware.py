@@ -5,6 +5,8 @@ from pathlib import Path
 import re
 import sys
 
+from aml_keymap import mouse_positions
+
 
 def require(condition: bool, message: str) -> None:
     if not condition:
@@ -33,6 +35,16 @@ def main() -> int:
         return 2
 
     right_dts, right_config, left_dts, left_config = map(read, sys.argv[1:])
+    keymap = (Path(__file__).resolve().parents[1] / "config/mona2.keymap").read_text(encoding="utf-8")
+    expected_exclusions = mouse_positions(keymap) or [65535]
+    for name, dts in (("right-central", right_dts), ("left-peripheral", left_dts)):
+        processor = node_body(dts, "zip_temp_layer")
+        exclusion = re.search(r"excluded-positions\s*=\s*<([^>]*)>;", processor)
+        require(exclusion is not None, f"{name} AML exclusions are missing")
+        actual = [int(value, 0) for value in exclusion.group(1).split()]
+        require(actual == expected_exclusions,
+                f"{name} AML exclusions {actual} differ from Mouse layer {expected_exclusions}")
+
     sensor = node_body(right_dts, "trackball_central")
     listener = node_body(right_dts, "trackball_central_listener")
     normalized_listener = re.sub(r"\s+", "", listener)

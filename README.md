@@ -26,9 +26,11 @@ Mouse/pointing behavior:
 
 - Auto Mouse Layer selects Layer 1 after pointer motion, waits for 300 ms of
   keyboard idle, and times out after 10 seconds. Mouse clicks refresh the timer.
-- AML exclusions are derived from every non-transparent/non-none Mouse-layer
-  binding. The current seven positions are 17/18/19/20/21/34/35, including the
-  right Command key at the same physical position as Base `-`.
+- AML exclusions are generated during each build from every
+  non-transparent/non-none Mouse-layer binding. Keymap Editor changes need no
+  manual exclusion-list update. Incremental builds regenerate the list when the
+  selected keymap changes. An empty Mouse layer uses an impossible position so
+  ordinary keys still cancel AML.
 - `Mouse Layer-Tap` uses `&mouse_lt <layer> <MB1..MB5>` so both parameters remain
   editable in Keymap Editor.
 - Layer 2 converts the trackball to scroll. Both vertical and horizontal
@@ -77,7 +79,7 @@ it is independent of DYA Studio and was already present on the original main.
 `scripts/verify-mona2-config.py` checks the editable source contracts without
 pinning Keymap Editor-owned tap actions, mouse-button values, or physical
 positions. It verifies safe hold/momentary reachability for the customized layers and
-compares AML exclusions with the actual non-transparent Mouse-layer positions;
+compares generated AML exclusions with the actual non-transparent Mouse-layer positions;
 that AML check remains strict because an unmatched position changes runtime
 layer-deactivation behavior. A regression test applies representative Editor
 changes while retaining these structural contracts. After an internal right

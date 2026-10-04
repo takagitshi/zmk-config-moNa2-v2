@@ -5,6 +5,8 @@ from pathlib import Path
 import re
 import sys
 
+from aml_keymap import mouse_positions
+
 ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -83,20 +85,15 @@ def main() -> int:
         require(len(behaviors) == 42,
                 f"layer {layer_id} must retain all 42 editable key slots: {len(behaviors)}")
 
-    mouse_behaviors = re.findall(r"&([A-Za-z0-9_]+)\b", layer_bindings[1])
-    configured_mouse_positions = [
-        position
-        for position, behavior in enumerate(mouse_behaviors)
-        if behavior not in {"trans", "none"}
-    ]
-    excluded_match = re.search(r"excluded-positions\s*=\s*<(?P<body>[^>]*)>;", keymap)
-    require(excluded_match is not None, "AML excluded-positions is missing")
-    excluded_positions = [int(value) for value in excluded_match.group("body").split()]
-    require(
-        excluded_positions == configured_mouse_positions,
-        f"AML exclusions {excluded_positions} do not match Mouse layer positions "
-        f"{configured_mouse_positions}",
-    )
+    # Exclusions are derived during configuration, never manually synchronized.
+    mouse_positions(keymap)
+    require('#include <aml-exclusions.h>' in keymap,
+            "generated AML exclusions header is missing")
+    require('excluded-positions = <AML_EXCLUDED_POSITIONS>;' in keymap,
+            "AML exclusions must use the generated Mouse-layer positions")
+    hook = read("modules/modules.cmake")
+    require('generate-aml-exclusions.py' in hook and '--key-count 42' in hook,
+            "build-time AML generation hook is missing")
     # Keymap Editor owns the binding values and their physical positions. Protect
     # only the semantic layer graph: every customized functional layer must remain
     # reachable from Base or the pointer-activated Mouse layer. In particular, do
