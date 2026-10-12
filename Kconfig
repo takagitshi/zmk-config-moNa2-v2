@@ -4,3 +4,8 @@ config ZMK_INPUT_PROCESSOR_GESTURE
     depends on DT_HAS_ZMK_INPUT_PROCESSOR_GESTURE_ENABLED
     help
       Enable the layer-aware pointing gesture input processor.
+
+config KEYBOARD_LED_POLICY
+    bool "Unified timed USB/battery/Bluetooth RGB display"
+    default y if SHIELD_MONA2_L || SHIELD_MONA2_R
+    depends on SOC_NRF52840 && ZMK_BATTERY_REPORTING && USB_DEVICE_STACK

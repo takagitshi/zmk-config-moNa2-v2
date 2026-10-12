@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from led_contract import verify_led_palette
 """Fast source-level contracts for the customized moNa2 configuration."""
 
 from pathlib import Path
@@ -239,10 +240,7 @@ def main() -> int:
                 f"{name} unexpectedly enables PM soft-off")
     require('CONFIG_RGBLED_WIDGET_SHOW_LAYER_COLORS=y' in right_conf,
             "stock layer LED behavior was removed")
-    expected_layer_colors = [0, 7, 2, 3, 5, 4, 2, 6, 1, 3]
-    for layer_id, color in enumerate(expected_layer_colors):
-        require(f'CONFIG_RGBLED_WIDGET_LAYER_{layer_id}_COLOR={color}' in right_conf,
-                f"layer {layer_id} LED color is not palette value {color}")
+    verify_led_palette(right_conf)
     require('CONFIG_ZMK_STUDIO=y' in right_conf, "standard ZMK Studio was removed")
     matrix_entries = []
     for block in re.findall(r"(?ms)^  - board:.*?(?=^  - board:|\Z)", builds):

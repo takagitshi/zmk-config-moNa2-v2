@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from led_contract import verify_led_palette
 """Verify contracts that only exist after ZMK has generated build files."""
 
 from pathlib import Path
@@ -122,10 +123,7 @@ def main() -> int:
             "right-central PMW3610 aggregation interval changed")
     require('CONFIG_PMW3610_RUN_DOWNSHIFT_TIME_MS=3264' in right_config,
             "right-central PMW3610 run-to-rest downshift changed")
-    expected_layer_colors = [0, 7, 2, 3, 5, 4, 2, 6, 1, 3]
-    for layer_id, color in enumerate(expected_layer_colors):
-        require(f'CONFIG_RGBLED_WIDGET_LAYER_{layer_id}_COLOR={color}' in right_config,
-                f"generated layer {layer_id} LED color is not palette value {color}")
+    verify_led_palette(right_config)
     require(not enabled(right_config, "CONFIG_ZMK_SETTINGS_RESET_ON_START"),
             "right-central normal firmware would erase settings on boot")
 
