@@ -91,12 +91,22 @@ struct bt_callbacks {void (*connected)(struct bt_conn*,uint8_t);void (*disconnec
 #define BT_CONN_CB_DEFINE(n) static struct bt_callbacks n
 #define SYS_INIT(fn, level, prio)
 static int diag_captured;
-uint8_t reset_diag_boot_color(void) {diag_captured++; return 0;}
+uint8_t reset_diag_boot_color(void) {diag_captured++; return TEST_DIAG_COLOR;}
 '''
 TEST=r'''
 static void event(int type) { zmk_event_t e={.type=type}; listener(&e); }
 int main(void) {
  assert(keyboard_led_init()==0 && diag_captured==1);
+#if TEST_DIAG_COLOR == 1 || TEST_DIAG_COLOR == 3 || TEST_DIAG_COLOR == 5
+ assert(state.diag_color==TEST_DIAG_COLOR && keyboard_led_work.delay==2000);
+ assert(physical==(TEST_DIAG_COLOR==1 ? 1 : TEST_DIAG_COLOR==3 ? 5 : 3));
+ connected=true;indicate_connectivity(); /* critical reset remains above BT */
+ assert(physical==(TEST_DIAG_COLOR==1 ? 1 : TEST_DIAG_COLOR==3 ? 5 : 3));
+ now=2000;render(NULL);assert(physical==6 && keyboard_led_work.delay==2000);
+ now=4000;render(NULL);assert(physical==0 && keyboard_led_work.delay==-1);
+ activity=ZMK_ACTIVITY_SLEEP;event(1);now=0;render(NULL);assert(physical==0);
+ return 0;
+#endif
  assert(physical==6); /* unknown cyan: green led2 + blue led1 */
  struct zmk_battery_state_changed battery={.type=2,.state_of_charge=10};
  listener((const zmk_event_t*)&battery);
@@ -110,9 +120,35 @@ int main(void) {
  connected=true;indicate_connectivity();assert(physical==2); /* blue physical led1 */
 #if CONFIG_ZMK_SPLIT_ROLE_CENTRAL
  layer=1;event(5);assert(physical==2); /* BT wins */
- now=4500;render(NULL);assert(physical==0); /* both deadlines end, blink off */
- now=5000;layer=31;zmk_rgbled_widget_set_layer_color(31,5);event(5);assert(physical==3);
+ now=4500;render(NULL);assert(physical==7 && keyboard_led_work.delay==-1);
+ now=60000;render(NULL);assert(physical==7 && keyboard_led_work.delay==-1);
+ event(5);assert(physical==7 && keyboard_led_work.delay==-1); /* repeat activation */
+ usb=false;event(3);render(NULL);assert(physical==7); /* battery retains Mouse */
+ usb=true;event(3);render(NULL);assert(physical==7);
+ /* Current highest layer wins; returning from an overlay restores Mouse. */
+ layer=31;zmk_rgbled_widget_set_layer_color(31,5);event(5);assert(physical==3);
  zmk_rgbled_widget_set_layer_color(31,1);assert(zmk_rgbled_widget_get_layer_color(31)==5);
+ layer=1;event(5);assert(physical==7);
+ indicate_battery();assert(physical==4 && keyboard_led_work.delay==2000);
+ layer=2;event(5);assert(physical==4); /* battery temporarily covers new layer */
+ now+=2000;render(NULL);assert(physical==4 && state.layer_color==2 && keyboard_led_work.delay==-1);
+ connected=false;indicate_connectivity();assert(physical==1);
+ layer=1;event(5);assert(physical==1);
+ now+=1500;render(NULL);assert(physical==7 && keyboard_led_work.delay==-1);
+ struct bt_conn split={.role=BT_CONN_ROLE_CENTRAL}, host={.role=0};
+ split_connected(&host, 1);assert(physical==1);
+ now+=1500;render(NULL);assert(physical==7);
+ split_connected(&host, 0);assert(physical==7); /* host uses profile event */
+ split_connected(&split, 0);assert(physical==2);
+ now+=1500;render(NULL);assert(physical==7);
+ split_disconnected(&split, 19);assert(physical==1);
+ now+=1500;render(NULL);assert(physical==7);
+ layer=31;event(5);assert(physical==3);
+ zmk_rgbled_widget_set_layer_color(31,0);assert(physical==0 && keyboard_led_work.delay==-1);
+ layer=0;event(5);assert(physical==((now/500)%2 ? 0 : 4));
+ zmk_rgbled_widget_set_layer_color(0,5);assert(physical==3 && state.layer_active);
+ zmk_rgbled_widget_set_layer_color(0,0);assert(!state.layer_active);
+ layer=1;event(5);assert(physical==7);
 #endif
  activity=ZMK_ACTIVITY_IDLE;event(1);assert(keyboard_led_sample_work.delay==0);
  sample_idle_battery(NULL);assert(sensor_reads==1 && state.battery_valid);
@@ -137,8 +173,24 @@ int main(void) {
  assert(physical==0 && keyboard_led_work.delay==-1 && keyboard_led_sample_work.delay==-1);
  indicate_connectivity();indicate_layer();indicate_battery();render(NULL);assert(physical==0);
  sample_idle_battery(NULL);assert(sensor_reads==reads);
- activity=ZMK_ACTIVITY_ACTIVE;event(1);assert(physical==6);
- assert(keyboard_led_sample_work.delay==-1);return 0;
+ activity=ZMK_ACTIVITY_ACTIVE;event(1);assert(physical==6 && keyboard_led_work.delay==2000);
+ assert(keyboard_led_sample_work.delay==-1);
+ now+=2000;render(NULL);
+#if CONFIG_ZMK_SPLIT_ROLE_CENTRAL
+ assert(physical==7 && keyboard_led_work.delay==-1); /* wake restores retained Mouse */
+ activity=ZMK_ACTIVITY_IDLE;event(1);assert(physical==6);
+ layer=2;event(5); /* layer change while IDLE is retained for wake */
+ activity=ZMK_ACTIVITY_ACTIVE;event(1);assert(physical==4 && keyboard_led_work.delay==-1);
+ layer=8;event(5);assert(physical==1); /* setting-only red is valid */
+ now+=60000;render(NULL);assert(physical==1);
+ layer=0;event(5);usb=false;event(3);render(NULL);assert(physical==0);
+ /* Init reads highest active layer even if its event predates renderer init. */
+ layer=1;now+=100;assert(keyboard_led_init()==0);
+ now+=2000;render(NULL);assert(physical==7);
+#else
+ assert(physical==6 && keyboard_led_work.delay==-1); /* peripheral has no layer sync */
+#endif
+ return 0;
 }
 '''
 def main():
@@ -153,9 +205,10 @@ def main():
         subprocess.run(['cc','-std=c99','-Wall','-Wextra','-Werror','-fsanitize=undefined','-I'+str(ROOT/'include'),str(ROOT/'tests/keyboard_led_policy_test.c'),'-o',str(policy_binary)],check=True)
         subprocess.run([str(policy_binary)],check=True)
         for central in (0,1):
-            unit=tmp/f'led-{central}.c'; binary=tmp/f'led-{central}'
-            unit.write_text(STUB+f'\n#define CONFIG_ZMK_SPLIT_ROLE_CENTRAL {central}\n'+defines+policy+source+TEST)
-            subprocess.run(['cc','-std=c99','-Wall','-Wextra','-Werror','-Wno-unused-parameter','-Wno-unused-function','-Wno-unused-variable','-fsanitize=undefined',str(unit),'-o',str(binary)],check=True)
-            subprocess.run([str(binary)],check=True)
+            for diag in (0,1,3,5,6):
+                unit=tmp/f'led-{central}-{diag}.c'; binary=tmp/f'led-{central}-{diag}'
+                unit.write_text(f'#define TEST_DIAG_COLOR {diag}\n'+STUB+f'\n#define CONFIG_ZMK_SPLIT_ROLE_CENTRAL {central}\n'+defines+policy+source+TEST)
+                subprocess.run(['cc','-std=c99','-Wall','-Wextra','-Werror','-Wno-unused-parameter','-Wno-unused-function','-Wno-unused-variable','-fsanitize=undefined',str(unit),'-o',str(binary)],check=True)
+                subprocess.run([str(binary)],check=True)
     print(f'{ROOT.name}: actual RGB renderer central/peripheral adapter PASS')
 if __name__=='__main__':main()

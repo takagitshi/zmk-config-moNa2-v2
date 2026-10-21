@@ -104,7 +104,7 @@
 &trans          &trans        &trans            &trans  &trans                    &trans  &trans    &trans           &trans    &trans
 &trans          &trans        &trans            &trans  &trans            &trans  &trans  &mkp MB1  &mouse_lt 2 MB3  &mkp MB2  &kp RIGHT_COMMAND
 &kp LEFT_SHIFT  &trans        &trans            &trans  &trans  &trans    &trans  &trans  &trans    &trans           &trans    &trans
-&trans          &kp LEFT_ALT  &kp LEFT_CONTROL  &kp LGUI  &trans  &trans    &trans  &trans                                       &trans
+&trans          &kp LEFT_ALT  &trans  &trans  &trans  &trans    &trans  &trans                                       &trans
             >;
 
             sensor-bindings = <&inc_dec_kp C_VOLUME_DOWN C_VOLUME_UP>;

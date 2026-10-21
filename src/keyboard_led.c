@@ -78,6 +78,13 @@ static void render_locked(void) {
     if (!ready) return;
     const int64_t now = k_uptime_get();
     state.usb = usb_powered();
+#if IS_ENABLED(CONFIG_ZMK_SPLIT_ROLE_CENTRAL)
+    /* Read the authoritative keymap on every event/render, including init and
+     * IDLE wake. A repeated activation cannot start or expire a layer timer. */
+    current_layer = zmk_keymap_highest_layer_active();
+    state.layer_color = current_layer < ARRAY_SIZE(colors) ? colors[current_layer] : 0;
+    state.layer_active = current_layer != 0 || state.layer_color != 0;
+#endif
     /* The upstream sampler stops at IDLE. Keep USB-only indication fresh on
      * its existing low-priority queue, with no extra battery/sleep polling. */
     if (state.usb && !state.active && !state.sleeping) {
@@ -158,15 +165,6 @@ void indicate_battery(void) {
 void indicate_layer(void) {
 #if IS_ENABLED(CONFIG_ZMK_SPLIT_ROLE_CENTRAL)
     k_mutex_lock(&keyboard_led_lock, K_FOREVER);
-    uint8_t layer = zmk_keymap_highest_layer_active();
-    /* Repeated activation of the same layer must not hide USB forever. */
-    if (layer != current_layer && state.active && !state.sleeping) {
-        current_layer = layer;
-        state.layer_color = layer < ARRAY_SIZE(colors) ? colors[layer] : 0;
-        const bool frequent = layer == 1 || layer == 2;
-        state.layer_until = k_uptime_get() + (frequent ?
-            (usb_powered() ? KL_MOUSE_USB_MS : KL_MOUSE_BATTERY_MS) : KL_TRANSIENT_MS);
-    }
     render_locked();
     k_mutex_unlock(&keyboard_led_lock);
 #endif
@@ -189,9 +187,11 @@ void zmk_rgbled_widget_restore(void) { k_work_reschedule(&keyboard_led_work, K_N
 static int listener(const zmk_event_t *eh) {
     if (as_zmk_activity_state_changed(eh)) {
         k_mutex_lock(&keyboard_led_lock, K_FOREVER);
+        const bool was_sleeping = state.sleeping;
         state.active = zmk_activity_get_state() == ZMK_ACTIVITY_ACTIVE;
         state.sleeping = zmk_activity_get_state() == ZMK_ACTIVITY_SLEEP;
-        if (!state.active) state.bt_until = state.layer_until = state.boot_until = 0;
+        if (!state.active) state.bt_until = state.boot_until = state.diag_until = 0;
+        else if (was_sleeping) state.boot_until = k_uptime_get() + KL_BOOT_MS;
         /* Serialized with worker GPIO writes: queued work cannot relight sleep. */
         render_locked();
         k_mutex_unlock(&keyboard_led_lock);
@@ -228,7 +228,8 @@ ZMK_SUBSCRIPTION(keyboard_led, zmk_layer_state_changed);
 /* Observe only the central's split link; host status uses the ZMK event above. */
 static void split_connected(struct bt_conn *conn, uint8_t err) {
     struct bt_conn_info info;
-    if (!err && !bt_conn_get_info(conn, &info) && info.role == BT_CONN_ROLE_CENTRAL)
+    if (err) connectivity_color(1); /* Failed host/split attempt has no profile event. */
+    else if (!bt_conn_get_info(conn, &info) && info.role == BT_CONN_ROLE_CENTRAL)
         connectivity_color(4);
 }
 static void split_disconnected(struct bt_conn *conn, uint8_t reason) {
@@ -243,10 +244,12 @@ BT_CONN_CB_DEFINE(keyboard_led_split_observer) = {
 ZMK_SUBSCRIPTION(keyboard_led, zmk_split_peripheral_status_changed);
 #endif
 static int keyboard_led_init(void) {
+    uint8_t boot_diag_color = 0;
 #if IS_ENABLED(CONFIG_RGBLED_WIDGET_RESET_DIAG)
-    /* Preserve Conductor forensic capture/logging and fatal recovery. */
+    /* Preserve Conductor forensic capture/logging and fatal recovery, and show
+     * critical reset causes before battery. Normal software reset stays silent. */
     extern uint8_t reset_diag_boot_color(void);
-    (void)reset_diag_boot_color();
+    boot_diag_color = reset_diag_boot_color();
 #endif
     for (unsigned i=0; i<ARRAY_SIZE(rgb); i++) {
         if (!gpio_is_ready_dt(&rgb[i])) return -ENODEV;
@@ -261,7 +264,12 @@ static int keyboard_led_init(void) {
     /* Zero before the first successful event is unknown, not an empty cell. */
     state.battery = zmk_battery_state_of_charge();
     state.battery_valid |= state.battery > 0 && state.battery <= 100;
-    state.boot_until = k_uptime_get() + KL_BOOT_MS;
+    const int64_t now = k_uptime_get();
+    if (boot_diag_color == 1 || boot_diag_color == 3 || boot_diag_color == 5) {
+        state.diag_color = boot_diag_color;
+        state.diag_until = now + KL_DIAG_MS;
+    }
+    state.boot_until = now + (state.diag_until > now ? KL_DIAG_MS : 0) + KL_BOOT_MS;
     ready = true;
     render_locked();
     k_mutex_unlock(&keyboard_led_lock);
